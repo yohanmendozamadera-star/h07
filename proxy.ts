@@ -3,7 +3,17 @@ import { createServerClient } from "@supabase/ssr";
 
 // "middleware.ts" está deprecado desde Next.js 16.0.0 y fue renombrado a
 // "proxy.ts" (ver node_modules/next/dist/docs/.../file-conventions/proxy.md).
-const PUBLIC_PATHS = ["/login", "/registro", "/recuperar-password", "/actualizar-password", "/auth/callback"];
+// "/api/webhooks" son endpoints llamados por servicios externos (ej. Bold) sin
+// sesión de usuario — se autentican solos verificando su propia firma, no con
+// la cookie de sesión, así que deben quedar fuera de este guard.
+const PUBLIC_PATHS = [
+  "/login",
+  "/registro",
+  "/recuperar-password",
+  "/actualizar-password",
+  "/auth/callback",
+  "/api/webhooks",
+];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
