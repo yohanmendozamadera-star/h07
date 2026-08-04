@@ -94,6 +94,7 @@ export function PlanCard({
   const router = useRouter();
   const [target, setTarget] = useState<PlanTarget | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
 
   const isSuspended = subscription?.status === "suspended";
   const currentTier: TierKey =
@@ -101,6 +102,7 @@ export function PlanCard({
 
   const h7Price = plans.find((p) => p.code === "h7")?.price_cop ?? 70000;
   const addonPrice = addons.find((a) => a.code === "automatizaciones")?.price_cop ?? 30000;
+  const currentPrice = currentTier === "free" ? 0 : currentTier === "premium" ? h7Price + addonPrice : h7Price;
 
   const handleConfirm = async () => {
     if (!target) return;
@@ -115,6 +117,7 @@ export function PlanCard({
     }
 
     toast.success(`Cambiaste al plan ${TIER_NAMES[target.tier]}`);
+    setShowComparison(false);
     router.refresh();
   };
 
@@ -126,33 +129,54 @@ export function PlanCard({
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <PlanTierCard
-          tier="free"
-          price={0}
-          isCurrent={currentTier === "free"}
-          disabled={currentTier === "free"}
-          ctaLabel={currentTier === "free" ? "Plan actual" : "Volver a Free"}
-          onSelect={() => setTarget({ tier: "free", planCode: "free", addonEnabled: false })}
-        />
-        <PlanTierCard
-          tier="h7"
-          price={h7Price}
-          isCurrent={currentTier === "h7"}
-          disabled={currentTier === "h7"}
-          ctaLabel={currentTier === "h7" ? "Plan actual" : currentTier === "premium" ? "Quitar complemento" : "Suscribirme"}
-          onSelect={() => setTarget({ tier: "h7", planCode: "h7", addonEnabled: false })}
-        />
-        <PlanTierCard
-          tier="premium"
-          price={h7Price + addonPrice}
-          isCurrent={currentTier === "premium"}
-          highlight
-          disabled={currentTier === "premium"}
-          ctaLabel={currentTier === "premium" ? "Plan actual" : "Suscribirme"}
-          onSelect={() => setTarget({ tier: "premium", planCode: "h7", addonEnabled: true })}
-        />
-      </div>
+      {!showComparison ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Plan actual: {TIER_NAMES[currentTier]}</CardTitle>
+            <CardDescription>{currentPrice === 0 ? "Sin costo" : `${formatCurrency(currentPrice)} / mes`}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button type="button" onClick={() => setShowComparison(true)}>
+              Actualizar plan
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          <div className="grid gap-4 md:grid-cols-3">
+            <PlanTierCard
+              tier="free"
+              price={0}
+              isCurrent={currentTier === "free"}
+              disabled={currentTier === "free"}
+              ctaLabel={currentTier === "free" ? "Plan actual" : "Volver a Free"}
+              onSelect={() => setTarget({ tier: "free", planCode: "free", addonEnabled: false })}
+            />
+            <PlanTierCard
+              tier="h7"
+              price={h7Price}
+              isCurrent={currentTier === "h7"}
+              disabled={currentTier === "h7"}
+              ctaLabel={
+                currentTier === "h7" ? "Plan actual" : currentTier === "premium" ? "Quitar complemento" : "Suscribirme"
+              }
+              onSelect={() => setTarget({ tier: "h7", planCode: "h7", addonEnabled: false })}
+            />
+            <PlanTierCard
+              tier="premium"
+              price={h7Price + addonPrice}
+              isCurrent={currentTier === "premium"}
+              highlight
+              disabled={currentTier === "premium"}
+              ctaLabel={currentTier === "premium" ? "Plan actual" : "Suscribirme"}
+              onSelect={() => setTarget({ tier: "premium", planCode: "h7", addonEnabled: true })}
+            />
+          </div>
+          <Button type="button" variant="outline" size="sm" onClick={() => setShowComparison(false)}>
+            Ocultar
+          </Button>
+        </div>
+      )}
 
       <Dialog open={Boolean(target)} onOpenChange={(open) => !open && setTarget(null)}>
         <DialogContent className="max-w-sm">
