@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { CompanyRow, PlatformInvoiceRow, PlatformPaymentRow, PlatformBanner, PaymentLinkRow } from "@/lib/panel-plataforma/types";
+import type { CompanyRow, PlatformInvoiceRow, PlatformPaymentRow, PlatformBanner, PlatformConfig, PaymentLinkRow } from "@/lib/panel-plataforma/types";
 
 type CompanyBase = { id: string; name: string; status: string; owner_user_id: string };
 type SubscriptionBase = { empresa_id: string; status: string; plan: { code: string; name: string } | null };
@@ -78,6 +78,17 @@ export const getPlatformBanner = cache(async (): Promise<PlatformBanner | null> 
     .maybeSingle();
 
   return data;
+});
+
+export const getPlatformConfig = cache(async (): Promise<PlatformConfig> => {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("platform_config")
+    .select("whatsapp_notifications_enabled")
+    .eq("id", 1)
+    .maybeSingle();
+
+  return data ?? { whatsapp_notifications_enabled: false };
 });
 
 export const getPaymentLinks = cache(async (): Promise<PaymentLinkRow[]> => {

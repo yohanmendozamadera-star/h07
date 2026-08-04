@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAdmin } from "@/lib/permissions/platform";
-import { bannerFormSchema, paymentLinkFormSchema, platformSetPlanSchema } from "@/lib/validations/panel-plataforma";
+import { bannerFormSchema, paymentLinkFormSchema, platformSetPlanSchema, platformConfigSchema } from "@/lib/validations/panel-plataforma";
 
 export type ActionResult = { success: true } | { success: false; message: string };
 
@@ -107,6 +107,30 @@ export async function updateBanner(bannerId: string | null, input: unknown): Pro
   const { error } = bannerId
     ? await supabase.from("platform_banner").update(payload).eq("id", bannerId)
     : await supabase.from("platform_banner").insert(payload);
+
+  if (error) return { success: false, message: error.message };
+
+  revalidatePath("/panel-plataforma");
+  return { success: true };
+}
+
+export async function updatePlatformConfig(input: unknown): Promise<ActionResult> {
+  const admin = await requirePlatformAdmin();
+  if (!admin) return { success: false, message: "No autorizado." };
+
+  const parsed = platformConfigSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("platform_config")
+    .update({
+      whatsapp_notifications_enabled: parsed.data.whatsappNotificationsEnabled,
+      updated_by: admin.userId,
+    })
+    .eq("id", 1);
 
   if (error) return { success: false, message: error.message };
 

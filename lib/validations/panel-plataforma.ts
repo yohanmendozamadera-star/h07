@@ -17,6 +17,12 @@ export const paymentLinkFormSchema = z.object({
 
 export type PaymentLinkFormValues = z.input<typeof paymentLinkFormSchema>;
 
+export const platformConfigSchema = z.object({
+  whatsappNotificationsEnabled: z.boolean(),
+});
+
+export type PlatformConfigValues = z.input<typeof platformConfigSchema>;
+
 export const platformSetPlanSchema = z.object({
   empresaId: z.string().uuid(),
   planCode: z.enum(["free", "h7"]),

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/header";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 export function AppShell({
   fullName,
@@ -38,18 +37,24 @@ export function AppShell({
         <SidebarNav permissions={permissions} hasActivePlan={hasActivePlan} collapsed={collapsed} />
       </aside>
 
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-64 p-0">
-          <SheetHeader className="border-b">
-            <SheetTitle>H07</SheetTitle>
-          </SheetHeader>
-          <SidebarNav
-            permissions={permissions}
-            hasActivePlan={hasActivePlan}
-            onNavigate={() => setMobileOpen(false)}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button
+            type="button"
+            aria-label="Cerrar menú"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileOpen(false)}
           />
-        </SheetContent>
-      </Sheet>
+          <div className="absolute inset-y-0 left-0 flex w-64 flex-col border-r bg-background shadow-lg">
+            <div className="flex h-14 items-center border-b px-4 font-semibold tracking-tight">H07</div>
+            <SidebarNav
+              permissions={permissions}
+              hasActivePlan={hasActivePlan}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header

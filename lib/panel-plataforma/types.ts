@@ -34,6 +34,10 @@ export type PlatformBanner = {
   is_active: boolean;
 };
 
+export type PlatformConfig = {
+  whatsapp_notifications_enabled: boolean;
+};
+
 export type PaymentLinkRow = {
   id: string;
   empresa_id: string | null;

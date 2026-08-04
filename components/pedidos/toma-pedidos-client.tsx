@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Plus, Minus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Minus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,6 +74,8 @@ export function TomaPedidosClient({
   const [paymentMethod, setPaymentMethod] = useState("");
   const [cart, setCart] = useState<CartLine[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [cartSheetOpen, setCartSheetOpen] = useState(false);
+  const [showClientFields, setShowClientFields] = useState(false);
 
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -169,6 +171,7 @@ export function TomaPedidosClient({
     setRecommendation("");
     setNextVisitDate("");
     setWorkOrderStatus("abierta");
+    setShowClientFields(false);
   };
 
   const handleSubmit = async () => {
@@ -223,8 +226,273 @@ export function TomaPedidosClient({
 
     toast.success(`Pedido ${result.orderNumber} creado`);
     resetForm();
+    setCartSheetOpen(false);
     router.refresh();
   };
+
+  // Se llama dos veces (tarjeta fija de escritorio + hoja inferior de
+  // celular) para no duplicar el markup; el prefijo evita ids de HTML
+  // repetidos cuando ambas copias existen en el DOM al mismo tiempo.
+  const renderCartCard = (idPrefix: string) => (
+    <>
+      {hasTallerItem && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Orden de trabajo</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}brand`}>Marca</Label>
+              <Input id={`${idPrefix}brand`} value={brand} onChange={(e) => setBrand(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}model`}>Modelo</Label>
+              <Input id={`${idPrefix}model`} value={model} onChange={(e) => setModel(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}mileage`}>Kilometraje</Label>
+              <Input id={`${idPrefix}mileage`} value={mileage} onChange={(e) => setMileage(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}workOrderStatus`}>Estado</Label>
+              <select
+                id={`${idPrefix}workOrderStatus`}
+                className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
+                value={workOrderStatus}
+                onChange={(e) => setWorkOrderStatus(e.target.value)}
+              >
+                {WORK_ORDER_STATUSES.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor={`${idPrefix}diagnosis`}>Diagnóstico</Label>
+              <Textarea id={`${idPrefix}diagnosis`} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor={`${idPrefix}workPerformed`}>Trabajo realizado</Label>
+              <Textarea
+                id={`${idPrefix}workPerformed`}
+                value={workPerformed}
+                onChange={(e) => setWorkPerformed(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor={`${idPrefix}recommendation`}>Recomendación</Label>
+              <Textarea
+                id={`${idPrefix}recommendation`}
+                value={recommendation}
+                onChange={(e) => setRecommendation(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}nextVisitDate`}>Próxima visita</Label>
+              <Input
+                id={`${idPrefix}nextVisitDate`}
+                type="date"
+                value={nextVisitDate}
+                onChange={(e) => setNextVisitDate(e.target.value)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Pedido</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {showClientFields || clientId || clientName || clientPhone ? (
+              <div className="space-y-1.5 sm:col-span-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor={`${idPrefix}clientId`}>Cliente</Label>
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                    onClick={() => {
+                      setShowClientFields(false);
+                      setClientId("");
+                      setClientName("");
+                      setClientPhone("");
+                    }}
+                  >
+                    Quitar
+                  </button>
+                </div>
+                <select
+                  id={`${idPrefix}clientId`}
+                  className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
+                  value={clientId}
+                  onChange={(e) => handleSelectClient(e.target.value)}
+                >
+                  <option value="">Cliente ocasional</option>
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="text-left text-sm text-blue-600 underline-offset-2 hover:underline sm:col-span-2 dark:text-blue-400"
+                onClick={() => setShowClientFields(true)}
+              >
+                + Agregar cliente (opcional)
+              </button>
+            )}
+
+            {(showClientFields || clientId || clientName || clientPhone) && (
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${idPrefix}clientName`}>Nombre</Label>
+                  <Input
+                    id={`${idPrefix}clientName`}
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${idPrefix}clientPhone`}>Celular</Label>
+                  <Input
+                    id={`${idPrefix}clientPhone`}
+                    type="tel"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}plate`}>Placa *</Label>
+              <Input
+                id={`${idPrefix}plate`}
+                className="uppercase"
+                value={plate}
+                onChange={(e) => setPlate(e.target.value)}
+              />
+            </div>
+
+            {technicians.length > 0 && (
+              <div className="space-y-1.5">
+                <Label htmlFor={`${idPrefix}technicianId`}>Técnico</Label>
+                <select
+                  id={`${idPrefix}technicianId`}
+                  className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
+                  value={technicianId}
+                  onChange={(e) => setTechnicianId(e.target.value)}
+                >
+                  <option value="">Sin asignar</option>
+                  {technicians.map((tech) => (
+                    <option key={tech.id} value={tech.id}>
+                      {tech.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <Label htmlFor={`${idPrefix}paymentMethod`}>Método de pago *</Label>
+              <select
+                id={`${idPrefix}paymentMethod`}
+                className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <option value="">Selecciona…</option>
+                {PAYMENT_METHODS.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {cart.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Toca un servicio o producto para agregarlo al pedido.</p>
+          ) : (
+            <div className="space-y-2">
+              {cart.map((line, index) => (
+                <div
+                  key={line.catalogItemId}
+                  className="flex items-center justify-between gap-2 rounded-md border border-blue-200 bg-blue-50 p-2 dark:border-blue-900 dark:bg-blue-950/40"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{line.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {CHANNEL_LABELS[line.channel]} ·{" "}
+                      {line.priceType === "variable" ? "Variable" : `${formatCurrency(line.unitPrice)} c/u`}
+                    </p>
+                  </div>
+
+                  {line.channel === "productos" && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() => updateQuantity(index, line.quantity - 1)}
+                      >
+                        <Minus className="size-3.5" />
+                      </Button>
+                      <span className="w-6 text-center text-sm">{line.quantity}</span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        onClick={() => updateQuantity(index, line.quantity + 1)}
+                      >
+                        <Plus className="size-3.5" />
+                      </Button>
+                    </div>
+                  )}
+
+                  <span className="w-24 shrink-0 text-right text-sm font-medium">
+                    {formatCurrency(line.quantity * line.unitPrice)}
+                  </span>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-500 dark:hover:bg-red-950/40"
+                    onClick={() => removeLine(index)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-center justify-between border-t pt-3 text-base font-semibold">
+            <span>Total</span>
+            <span>{formatCurrency(total)}</span>
+          </div>
+
+          <Button
+            type="button"
+            className={cn("w-full", !submitting && "bg-green-600 text-white hover:bg-green-700")}
+            disabled={submitting}
+            onClick={handleSubmit}
+          >
+            {submitting && <Loader2 className="size-4 animate-spin" />}
+            Finalizar pedido
+          </Button>
+        </CardContent>
+      </Card>
+    </>
+  );
 
   if (tabs.length === 0) {
     return (
@@ -235,6 +503,7 @@ export function TomaPedidosClient({
   }
 
   const showCart = canCreatePedido && activeTab !== "parqueadero";
+  const cartLabel = cart.length === 0 ? "Ver pedido" : `Ver pedido (${cart.length})`;
 
   return (
     <div className="space-y-4">
@@ -300,232 +569,49 @@ export function TomaPedidosClient({
           )}
         </Tabs>
 
-        {showCart && (
-          <div className="space-y-4">
-          {hasTallerItem && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Orden de trabajo</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="brand">Marca</Label>
-                  <Input id="brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="model">Modelo</Label>
-                  <Input id="model" value={model} onChange={(e) => setModel(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="mileage">Kilometraje</Label>
-                  <Input id="mileage" value={mileage} onChange={(e) => setMileage(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="workOrderStatus">Estado</Label>
-                  <select
-                    id="workOrderStatus"
-                    className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
-                    value={workOrderStatus}
-                    onChange={(e) => setWorkOrderStatus(e.target.value)}
-                  >
-                    {WORK_ORDER_STATUSES.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="diagnosis">Diagnóstico</Label>
-                  <Textarea id="diagnosis" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="workPerformed">Trabajo realizado</Label>
-                  <Textarea
-                    id="workPerformed"
-                    value={workPerformed}
-                    onChange={(e) => setWorkPerformed(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="recommendation">Recomendación</Label>
-                  <Textarea
-                    id="recommendation"
-                    value={recommendation}
-                    onChange={(e) => setRecommendation(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="nextVisitDate">Próxima visita</Label>
-                  <Input
-                    id="nextVisitDate"
-                    type="date"
-                    value={nextVisitDate}
-                    onChange={(e) => setNextVisitDate(e.target.value)}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Pedido</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="clientId">Cliente</Label>
-                  <select
-                    id="clientId"
-                    className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
-                    value={clientId}
-                    onChange={(e) => handleSelectClient(e.target.value)}
-                  >
-                    <option value="">Cliente ocasional</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="clientName">Nombre</Label>
-                  <Input id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="clientPhone">Celular</Label>
-                  <Input
-                    id="clientPhone"
-                    type="tel"
-                    value={clientPhone}
-                    onChange={(e) => setClientPhone(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="plate">Placa *</Label>
-                  <Input id="plate" className="uppercase" value={plate} onChange={(e) => setPlate(e.target.value)} />
-                </div>
-
-                {technicians.length > 0 && (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="technicianId">Técnico</Label>
-                    <select
-                      id="technicianId"
-                      className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
-                      value={technicianId}
-                      onChange={(e) => setTechnicianId(e.target.value)}
-                    >
-                      <option value="">Sin asignar</option>
-                      {technicians.map((tech) => (
-                        <option key={tech.id} value={tech.id}>
-                          {tech.full_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="paymentMethod">Método de pago *</Label>
-                  <select
-                    id="paymentMethod"
-                    className="h-9 w-full rounded-md border bg-transparent px-2 text-sm"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  >
-                    <option value="">Selecciona…</option>
-                    {PAYMENT_METHODS.map((method) => (
-                      <option key={method} value={method}>
-                        {method}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {cart.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Toca un servicio o producto para agregarlo al pedido.</p>
-              ) : (
-                <div className="space-y-2">
-                  {cart.map((line, index) => (
-                    <div
-                      key={line.catalogItemId}
-                      className="flex items-center justify-between gap-2 rounded-md border border-blue-200 bg-blue-50 p-2 dark:border-blue-900 dark:bg-blue-950/40"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{line.description}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {CHANNEL_LABELS[line.channel]} ·{" "}
-                          {line.priceType === "variable" ? "Variable" : `${formatCurrency(line.unitPrice)} c/u`}
-                        </p>
-                      </div>
-
-                      {line.channel === "productos" && (
-                        <div className="flex items-center gap-1">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => updateQuantity(index, line.quantity - 1)}
-                          >
-                            <Minus className="size-3.5" />
-                          </Button>
-                          <span className="w-6 text-center text-sm">{line.quantity}</span>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => updateQuantity(index, line.quantity + 1)}
-                          >
-                            <Plus className="size-3.5" />
-                          </Button>
-                        </div>
-                      )}
-
-                      <span className="w-24 shrink-0 text-right text-sm font-medium">
-                        {formatCurrency(line.quantity * line.unitPrice)}
-                      </span>
-
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-500 dark:hover:bg-red-950/40"
-                        onClick={() => removeLine(index)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between border-t pt-3 text-base font-semibold">
-                <span>Total</span>
-                <span>{formatCurrency(total)}</span>
-              </div>
-
-              <Button
-                type="button"
-                className={cn("w-full", !submitting && "bg-green-600 text-white hover:bg-green-700")}
-                disabled={submitting}
-                onClick={handleSubmit}
-              >
-                {submitting && <Loader2 className="size-4 animate-spin" />}
-                Finalizar pedido
-              </Button>
-            </CardContent>
-          </Card>
-          </div>
-        )}
+        {showCart && <div className="hidden space-y-4 lg:block">{renderCartCard("desktop-")}</div>}
       </div>
 
-      <div className="space-y-2">
+      {showCart && (
+        <>
+          <button
+            type="button"
+            onClick={() => setCartSheetOpen(true)}
+            className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between border-t bg-blue-600 px-4 py-3 text-white shadow-lg lg:hidden"
+          >
+            <span className="text-sm font-medium">{cartLabel}</span>
+            <span className="text-sm font-semibold">{formatCurrency(total)}</span>
+          </button>
+
+          {cartSheetOpen && (
+            <div className="fixed inset-0 z-50 lg:hidden">
+              <button
+                type="button"
+                aria-label="Cerrar"
+                className="absolute inset-0 bg-black/40"
+                onClick={() => setCartSheetOpen(false)}
+              />
+              <div className="absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-lg border-t bg-background shadow-lg">
+                <div className="flex items-center justify-between border-b p-4">
+                  <h2 className="font-medium">Pedido</h2>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Cerrar"
+                    onClick={() => setCartSheetOpen(false)}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+                <div className="space-y-4 overflow-y-auto p-4">{renderCartCard("mobile-")}</div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      <div className={cn("space-y-2", showCart && "pb-16 lg:pb-0")}>
         <h2 className="text-sm font-medium text-muted-foreground">Pedidos recientes (últimas 3 horas)</h2>
         <OrdersList orders={orders} />
       </div>
