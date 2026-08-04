@@ -26,4 +26,3 @@ export type PaymentRow = {
 
 export type PlanRow = { code: string; name: string; price_cop: number };
 export type PlanAddonRow = { code: string; name: string; price_cop: number };
-export type TenantPaymentLink = { label: string; url: string } | null;

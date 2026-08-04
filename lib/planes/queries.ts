@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import type { CurrentSubscription, InvoiceRow, PaymentRow, PlanRow, PlanAddonRow, TenantPaymentLink } from "@/lib/planes/types";
+import type { CurrentSubscription, InvoiceRow, PaymentRow, PlanRow, PlanAddonRow } from "@/lib/planes/types";
 
 export const getCurrentSubscription = cache(async (): Promise<CurrentSubscription | null> => {
   const supabase = await createClient();
@@ -52,19 +52,4 @@ export const getPlanAddons = cache(async (): Promise<PlanAddonRow[]> => {
   const supabase = await createClient();
   const { data } = await supabase.from("plan_addons").select("code, name, price_cop").eq("is_active", true);
   return data ?? [];
-});
-
-// Prefiere un link específico de la empresa sobre uno global si ambos existen.
-export const getTenantPaymentLink = cache(async (empresaId: string): Promise<TenantPaymentLink> => {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("payment_links")
-    .select("label, url, empresa_id")
-    .eq("is_active", true)
-    .or(`empresa_id.eq.${empresaId},empresa_id.is.null`)
-    .order("empresa_id", { ascending: true, nullsFirst: false })
-    .limit(1)
-    .maybeSingle();
-
-  return data ? { label: data.label, url: data.url } : null;
 });
