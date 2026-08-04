@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Menu, PanelLeftClose, PanelLeftOpen, LogOut, Loader2, ShieldCheck } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Menu, PanelLeftClose, PanelLeftOpen, LogOut, Loader2, ShieldCheck, Sun, Moon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,46 @@ function initials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+}
+
+// Detecta si ya estamos en el cliente tras la hidratación, sin el
+// anti-patrón de "useEffect + setState" (el snapshot del servidor es
+// siempre false; el del cliente, siempre true — React re-renderiza solo
+// al notar que difieren, sin necesidad de un efecto).
+function useHasMounted() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
+function ThemeToggle() {
+  const { resolvedTheme, setTheme } = useTheme();
+  // Evita el parpadeo/discrepancia de hidratación: el tema resuelto solo se
+  // conoce en el cliente, tras el montaje (next-themes lo agrega vía script).
+  const mounted = useHasMounted();
+
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" disabled aria-label="Cambiar tema">
+        <Sun className="size-5" />
+      </Button>
+    );
+  }
+
+  const isDark = resolvedTheme === "dark";
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+    >
+      {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+    </Button>
+  );
 }
 
 export function Header({
@@ -69,6 +110,8 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-3">
+        <ThemeToggle />
+
         {isPlatformAdmin && (
           <Link href="/panel-plataforma">
             <Button variant="outline" size="sm" className="gap-1.5">

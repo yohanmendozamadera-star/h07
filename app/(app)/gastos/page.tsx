@@ -4,6 +4,7 @@ import { getExpenseCategories, getSuppliers } from "@/lib/configuraciones/querie
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { ExpenseFormDialog } from "@/components/gastos/expense-form-dialog";
 import { GastosTable } from "@/components/gastos/gastos-table";
+import { ExportButton } from "@/components/shared/export-button";
 
 export default async function GastosPage() {
   const user = await getCurrentUser();
@@ -28,7 +29,10 @@ export default async function GastosPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold tracking-tight">Gastos</h1>
-        {canCreate && <ExpenseFormDialog categories={activeCategories} suppliers={activeSuppliers} />}
+        <div className="flex items-center gap-2">
+          <ExportButton href="/gastos/export" />
+          {canCreate && <ExpenseFormDialog categories={activeCategories} suppliers={activeSuppliers} />}
+        </div>
       </div>
 
       <GastosTable expenses={expenses} categories={activeCategories} suppliers={activeSuppliers} canEdit={canEdit} />

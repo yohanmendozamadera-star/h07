@@ -3,6 +3,7 @@ import { getClients } from "@/lib/clientes/queries";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { ClientFormDialog } from "@/components/clientes/client-form-dialog";
 import { ClientesTable } from "@/components/clientes/clientes-table";
+import { ExportButton } from "@/components/shared/export-button";
 
 export default async function ClientesPage() {
   const user = await getCurrentUser();
@@ -19,7 +20,10 @@ export default async function ClientesPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold tracking-tight">Clientes</h1>
-        {canEdit && <ClientFormDialog />}
+        <div className="flex items-center gap-2">
+          <ExportButton href="/clientes/export" />
+          {canEdit && <ClientFormDialog />}
+        </div>
       </div>
 
       <ClientesTable clients={clients} canEdit={canEdit} />

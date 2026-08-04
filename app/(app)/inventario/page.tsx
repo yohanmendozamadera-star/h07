@@ -4,6 +4,7 @@ import { getSuppliers } from "@/lib/configuraciones/queries";
 import { getPurchases, getShrinkages, getStock } from "@/lib/inventario/queries";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { InventarioClient } from "@/components/inventario/inventario-client";
+import { ExportButton } from "@/components/shared/export-button";
 
 export default async function InventarioPage() {
   const user = await getCurrentUser();
@@ -26,7 +27,10 @@ export default async function InventarioPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">Inventario</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold tracking-tight">Inventario</h1>
+        <ExportButton href="/inventario/export" />
+      </div>
 
       <InventarioClient
         items={inventoryItems}

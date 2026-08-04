@@ -3,6 +3,7 @@ import { getPedidosHistoricos, getTallerFollowUps } from "@/lib/pedidos/queries"
 import { hasActivePlan } from "@/lib/planes/queries";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { PedidosHistoricosClient } from "@/components/pedidos/pedidos-historicos-client";
+import { ExportButton } from "@/components/shared/export-button";
 
 export default async function PedidosHistoricosPage() {
   const user = await getCurrentUser();
@@ -27,11 +28,14 @@ export default async function PedidosHistoricosPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Pedidos Históricos</h1>
-        <p className="text-sm text-muted-foreground">
-          Registro completo de pedidos de Lavandería, Productos y Taller.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Pedidos Históricos</h1>
+          <p className="text-sm text-muted-foreground">
+            Registro completo de pedidos de Lavandería, Productos y Taller.
+          </p>
+        </div>
+        <ExportButton href="/pedidos-historicos/export" />
       </div>
 
       <PedidosHistoricosClient orders={orders} tallerFollowUps={tallerFollowUps} />
