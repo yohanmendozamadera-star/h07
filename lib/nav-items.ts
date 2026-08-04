@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   ClipboardList,
   History,
+  ScrollText,
   Boxes,
   Wallet,
   Users,
@@ -38,4 +39,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/usuarios", label: "Usuarios", icon: Users, permission: "usuarios.manage" },
   { href: "/configuraciones", label: "Configuraciones", icon: Settings, permission: "configuraciones.manage" },
   { href: "/planes", label: "Planes", icon: CreditCard, permission: "planes.view" },
+  { href: "/auditoria", label: "Auditoría", icon: ScrollText, permission: "auditoria.view" },
 ];
