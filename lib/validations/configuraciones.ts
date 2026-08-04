@@ -1,0 +1,19 @@
+import { z } from "zod";
+
+export const companySettingsFormSchema = z.object({
+  lavanderiaEnabled: z.boolean(),
+  inventarioEnabled: z.boolean(),
+  tallerEnabled: z.boolean(),
+  parqueaderoEnabled: z.boolean(),
+  requireTechnicianOnInvoice: z.boolean(),
+  showNumericKeypad: z.boolean(),
+  parkingGraceMinutes: z.coerce.number().min(0).max(1440),
+});
+
+export type CompanySettingsFormValues = z.input<typeof companySettingsFormSchema>;
+
+export const sharedCatalogNameSchema = z.object({
+  name: z.string().trim().min(1, "El nombre es obligatorio"),
+});
+
+export type SharedCatalogNameValues = z.input<typeof sharedCatalogNameSchema>;

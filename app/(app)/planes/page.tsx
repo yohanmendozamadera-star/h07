@@ -1,0 +1,32 @@
+import { getCurrentUser, can } from "@/lib/permissions";
+import { getCurrentSubscription, getInvoices, getPlans, getPlanAddons, getTenantPaymentLink } from "@/lib/planes/queries";
+import { ModulePlaceholder } from "@/components/layout/module-placeholder";
+import { PlanCard } from "@/components/planes/plan-card";
+import { PayNowBanner } from "@/components/planes/pay-now-banner";
+import { InvoicesTable } from "@/components/planes/invoices-table";
+
+export default async function PlanesPage() {
+  const user = await getCurrentUser();
+  const permissions = user?.permissions ?? [];
+
+  if (!can(permissions, "planes.view")) {
+    return <ModulePlaceholder title="Planes" description="No tienes permiso para ver este módulo." denied />;
+  }
+
+  const [subscription, invoices, plans, addons, paymentLink] = await Promise.all([
+    getCurrentSubscription(),
+    getInvoices(),
+    getPlans(),
+    getPlanAddons(),
+    getTenantPaymentLink(user!.empresaId),
+  ]);
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-xl font-semibold tracking-tight">Planes</h1>
+      <PayNowBanner invoices={invoices} paymentLink={paymentLink} />
+      <PlanCard subscription={subscription} plans={plans} addons={addons} />
+      <InvoicesTable invoices={invoices} canReport={can(permissions, "pagos.create")} />
+    </div>
+  );
+}
