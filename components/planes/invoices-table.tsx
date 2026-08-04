@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BoldPayButton } from "@/components/planes/bold-pay-button";
 import { computeBoldIntegritySignature } from "@/lib/bold/signature";
 import type { InvoiceRow } from "@/lib/planes/types";
-import { formatCurrency, formatDate, getTodayBogota } from "@/lib/format";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 const STATUS_LABELS: Record<InvoiceRow["status"], string> = {
   pending: "Pendiente",
@@ -12,20 +12,8 @@ const STATUS_LABELS: Record<InvoiceRow["status"], string> = {
   cancelled: "Cancelada",
 };
 
-// El botón de pagar se habilita esta cantidad de días antes del vencimiento
-// (las facturas vencidas siempre son pagables, sin importar este número).
-const PAY_BUTTON_DAYS_BEFORE_DUE = 2;
-
 function isPayableNow(invoice: InvoiceRow): boolean {
-  if (invoice.status === "overdue") return true;
-  if (invoice.status !== "pending") return false;
-
-  const dueDate = new Date(`${invoice.due_date}T00:00:00`);
-  const activationDate = new Date(dueDate);
-  activationDate.setDate(activationDate.getDate() - PAY_BUTTON_DAYS_BEFORE_DUE);
-
-  const today = new Date(`${getTodayBogota()}T00:00:00`);
-  return today >= activationDate;
+  return invoice.status === "pending" || invoice.status === "overdue";
 }
 
 export function InvoicesTable({ invoices, canPay }: { invoices: InvoiceRow[]; canPay: boolean }) {
@@ -84,10 +72,8 @@ export function InvoicesTable({ invoices, canPay }: { invoices: InvoiceRow[]; ca
                               description={`Factura H07 ${period}`}
                               redirectionUrl={`${appUrl}/planes`}
                             />
-                          ) : invoice.status === "pending" ? (
-                            <span className="text-xs text-muted-foreground">
-                              Disponible {PAY_BUTTON_DAYS_BEFORE_DUE} días antes del vencimiento
-                            </span>
+                          ) : isPayableNow(invoice) ? (
+                            <span className="text-xs text-muted-foreground">Contacta a soporte para pagar</span>
                           ) : null}
                         </td>
                       )}
