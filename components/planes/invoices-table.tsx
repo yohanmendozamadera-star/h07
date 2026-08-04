@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BoldPayButton } from "@/components/planes/bold-pay-button";
-import { computeBoldIntegritySignature } from "@/lib/bold/signature";
+import { computeBoldIntegritySignature, buildBoldOrderId } from "@/lib/bold/signature";
 import type { InvoiceRow } from "@/lib/planes/types";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -59,19 +59,24 @@ export function InvoicesTable({ invoices, canPay }: { invoices: InvoiceRow[]; ca
                       {canPay && (
                         <td className="p-2 text-right">
                           {payable && identityKey ? (
-                            <BoldPayButton
-                              orderId={invoice.id}
-                              amount={invoice.total_amount}
-                              currency="COP"
-                              identityKey={identityKey}
-                              integritySignature={computeBoldIntegritySignature(
-                                invoice.id,
-                                String(invoice.total_amount),
-                                "COP",
-                              )}
-                              description={`Factura H07 ${period}`}
-                              redirectionUrl={`${appUrl}/planes`}
-                            />
+                            (() => {
+                              const orderId = buildBoldOrderId(invoice.id);
+                              return (
+                                <BoldPayButton
+                                  orderId={orderId}
+                                  amount={invoice.total_amount}
+                                  currency="COP"
+                                  identityKey={identityKey}
+                                  integritySignature={computeBoldIntegritySignature(
+                                    orderId,
+                                    String(invoice.total_amount),
+                                    "COP",
+                                  )}
+                                  description={`Factura H07 ${period}`}
+                                  redirectionUrl={`${appUrl}/planes`}
+                                />
+                              );
+                            })()
                           ) : isPayableNow(invoice) ? (
                             <span className="text-xs text-muted-foreground">Contacta a soporte para pagar</span>
                           ) : null}

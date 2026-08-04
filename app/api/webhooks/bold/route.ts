@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifyBoldWebhookSignature } from "@/lib/bold/signature";
+import { verifyBoldWebhookSignature, parseBoldInvoiceId } from "@/lib/bold/signature";
 
 type BoldWebhookEvent = {
   type: string;
@@ -48,12 +48,16 @@ export async function POST(request: NextRequest) {
   }
 
   const boldPaymentId = event.data.payment_id;
-  const invoiceId = event.data.metadata?.reference;
+  const reference = event.data.metadata?.reference;
 
-  if (!boldPaymentId || !invoiceId) {
-    console.log("[bold-webhook] falta payment_id o reference", { boldPaymentId, invoiceId });
+  if (!boldPaymentId || !reference) {
+    console.log("[bold-webhook] falta payment_id o reference", { boldPaymentId, reference });
     return NextResponse.json({ error: "Falta payment_id o reference" }, { status: 400 });
   }
+
+  // El orderId enviado a Bold es "<invoiceId>::<timestamp>" (único por
+  // intento de pago, ver buildBoldOrderId) — aquí se recupera el invoiceId real.
+  const invoiceId = parseBoldInvoiceId(reference);
 
   const supabase = createAdminClient();
 

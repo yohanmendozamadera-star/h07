@@ -1,6 +1,22 @@
 import "server-only";
 import crypto from "node:crypto";
 
+const ORDER_ID_SEPARATOR = "::";
+
+// Bold exige un orderId único por cada intento de pago, incluso para la misma
+// factura — reusar el mismo orderId hace que Bold rechace el segundo intento
+// con "la referencia ya fue usada" (error BTN-002 del botón de pagos). Se le
+// agrega un sufijo único por intento; el webhook recupera el id real de la
+// factura separando por ORDER_ID_SEPARATOR (que nunca aparece dentro de un
+// uuid, así que el split es seguro).
+export function buildBoldOrderId(invoiceId: string): string {
+  return `${invoiceId}${ORDER_ID_SEPARATOR}${Date.now()}`;
+}
+
+export function parseBoldInvoiceId(orderIdOrReference: string): string {
+  return orderIdOrReference.split(ORDER_ID_SEPARATOR)[0];
+}
+
 // Hash de integridad para el Botón de pagos: SHA256(orderId + amount + currency + secretKey),
 // concatenados sin separador, en ese orden exacto (documentación de Bold).
 export function computeBoldIntegritySignature(orderId: string, amount: string, currency: string) {
