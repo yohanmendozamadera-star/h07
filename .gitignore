@@ -42,3 +42,8 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Scripts temporales de prueba (usan la service-role key inline) — nunca
+# deben llegar a un commit, ver incidente 2026-08-04 en la memoria del proyecto.
+scratch-*.mjs
+scratch-*.ts
