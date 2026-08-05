@@ -29,6 +29,21 @@ export function computeBoldIntegritySignature(orderId: string, amount: string, c
   return crypto.createHash("sha256").update(concatenated).digest("hex");
 }
 
+// El nombre de la empresa es texto libre (lo escribe el dueño en el
+// registro/onboarding, sin restricción de caracteres) y termina en el campo
+// "description" del checkout de Bold. Un caso real (nombre de empresa con
+// "@"/"+", visto probando con una cuenta de prueba mal formada) hizo fallar
+// el botón con BTN-001 — se sanea por seguridad a un set de caracteres que
+// sabemos que Bold acepta, en vez de confiar en que cualquier texto libre
+// pase su validación.
+export function sanitizeBoldDescription(text: string): string {
+  const cleaned = text
+    .replace(/[^\p{L}\p{N} .,/-]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.slice(0, 100) || "Factura H07";
+}
+
 // Verifica el header x-bold-signature de un webhook: HMAC-SHA256 de
 // base64(cuerpo crudo) usando la llave secreta, comparado en hex.
 export function verifyBoldWebhookSignature(rawBody: string, signatureHeader: string | null): boolean {

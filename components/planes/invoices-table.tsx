@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BoldPayButton } from "@/components/planes/bold-pay-button";
-import { computeBoldIntegritySignature, buildBoldOrderId } from "@/lib/bold/signature";
+import { computeBoldIntegritySignature, buildBoldOrderId, sanitizeBoldDescription } from "@/lib/bold/signature";
 import type { InvoiceRow } from "@/lib/planes/types";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -90,7 +90,9 @@ export function InvoicesTable({
                                   String(invoice.total_amount),
                                   "COP",
                                 )}
-                                description={`H07 - ${companyName} - Periodo ${formatDate(range.start)} a ${formatDate(range.end)}`}
+                                description={sanitizeBoldDescription(
+                                  `H07 - ${companyName} - Periodo ${formatDate(range.start)} a ${formatDate(range.end)}`,
+                                )}
                                 redirectionUrl={`${appUrl}/planes`}
                               />
                             );
