@@ -30,12 +30,10 @@ export function InvoicesTable({
   invoices,
   canPay,
   companyName,
-  ownerEmail,
 }: {
   invoices: InvoiceRow[];
   canPay: boolean;
   companyName: string;
-  ownerEmail: string | null;
 }) {
   const identityKey = process.env.NEXT_PUBLIC_BOLD_IDENTITY_KEY;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://h07.io";
@@ -94,7 +92,6 @@ export function InvoicesTable({
                                 )}
                                 description={`H07 - ${companyName} - Periodo ${formatDate(range.start)} a ${formatDate(range.end)}`}
                                 redirectionUrl={`${appUrl}/planes`}
-                                customerEmail={ownerEmail ?? undefined}
                               />
                             );
                           })()
