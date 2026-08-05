@@ -1,14 +1,18 @@
 import "server-only";
 import crypto from "node:crypto";
 
-const ORDER_ID_SEPARATOR = "::";
+const ORDER_ID_SEPARATOR = "_";
 
 // Bold exige un orderId único por cada intento de pago, incluso para la misma
 // factura — reusar el mismo orderId hace que Bold rechace el segundo intento
 // con "la referencia ya fue usada" (error BTN-002 del botón de pagos). Se le
 // agrega un sufijo único por intento; el webhook recupera el id real de la
-// factura separando por ORDER_ID_SEPARATOR (que nunca aparece dentro de un
-// uuid, así que el split es seguro).
+// factura separando por ORDER_ID_SEPARATOR. Un uuid solo usa dígitos hex y
+// guiones simples, nunca guion bajo, así que partir por "_" es seguro.
+// (Antes se usaba "::" — Bold solo permite alfanuméricos, guion y guion
+// bajo en orderId; los dos puntos hacían que el botón de pago fallara con
+// el error BTN-001, "atributos de configuración incorrectos", confirmado
+// probando la integración directamente con distintos separadores.)
 export function buildBoldOrderId(invoiceId: string): string {
   return `${invoiceId}${ORDER_ID_SEPARATOR}${Date.now()}`;
 }
