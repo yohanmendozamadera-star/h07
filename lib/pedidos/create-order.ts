@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, can } from "@/lib/permissions";
 import { orderFormSchema } from "@/lib/validations/order";
+import { getOrderLockStatus } from "@/lib/pedidos/order-lock";
 
 export type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
@@ -15,6 +16,14 @@ export async function createOrderShared(input: unknown): Promise<CreateOrderResu
   const user = await getCurrentUser();
   if (!user || !can(user.permissions, "pedidos.create")) {
     return { success: false, message: "No tienes permiso para crear pedidos." };
+  }
+
+  const lockStatus = await getOrderLockStatus(user.empresaId);
+  if (lockStatus.blocked) {
+    return {
+      success: false,
+      message: "Toma Pedidos está bloqueado por falta de pago. Ponte al día en Planes para volver a crear pedidos.",
+    };
   }
 
   const parsed = orderFormSchema.safeParse(input);

@@ -45,6 +45,7 @@ export function TomaPedidosClient({
   technicians,
   orders,
   canCreatePedido,
+  pedidosBlocked,
   createPedidoAction,
   parkingRates,
   openMovements,
@@ -57,6 +58,7 @@ export function TomaPedidosClient({
   technicians: Tecnico[];
   orders: OrderListItem[];
   canCreatePedido: boolean;
+  pedidosBlocked: boolean;
   createPedidoAction: (input: unknown) => Promise<CreateOrderResult>;
   parkingRates: ParkingRate[];
   openMovements: OpenMovement[];
@@ -502,7 +504,7 @@ export function TomaPedidosClient({
     );
   }
 
-  const showCart = canCreatePedido && activeTab !== "parqueadero";
+  const showCart = canCreatePedido && !pedidosBlocked && activeTab !== "parqueadero";
   const cartLabel = cart.length === 0 ? "Ver pedido" : `Ver pedido (${cart.length})`;
 
   return (
@@ -524,6 +526,10 @@ export function TomaPedidosClient({
               <TabsContent key={channel} value={channel} className="pt-3">
                 {!canCreatePedido ? (
                   <p className="text-sm text-muted-foreground">No tienes permiso para crear pedidos.</p>
+                ) : pedidosBlocked ? (
+                  <p className="text-sm text-red-600 dark:text-red-500">
+                    Este canal está bloqueado por falta de pago. Ve a Planes para ponerte al día.
+                  </p>
                 ) : channelItems.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Todavía no hay servicios activos en este canal. Ve a Servicios para agregar al menos uno.

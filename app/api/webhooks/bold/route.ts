@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyBoldWebhookSignature, parseBoldInvoiceId } from "@/lib/bold/signature";
+import { buildInvoiceReceiptPdf } from "@/lib/pdf/build-invoice-receipt";
+import { sendEmail } from "@/lib/email/resend";
+import { formatCurrency, formatDate } from "@/lib/format";
 
 type BoldWebhookEvent = {
   type: string;
@@ -74,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   const { data: invoice, error: invoiceLookupError } = await supabase
     .from("invoices")
-    .select("id, empresa_id, total_amount")
+    .select("id, empresa_id, total_amount, due_date")
     .eq("id", invoiceId)
     .maybeSingle();
 
@@ -108,5 +111,53 @@ export async function POST(request: NextRequest) {
   }
 
   console.log("[bold-webhook] factura marcada como pagada", { invoiceId: invoice.id, boldPaymentId });
+
+  // El recibo se envía SIEMPRE al correo del propietario de la empresa
+  // (companies.owner_user_id), nunca al de un empleado — un fallo aquí no
+  // debe hacer que Bold reintente el webhook, el pago ya quedó registrado.
+  try {
+    const { data: company } = await supabase
+      .from("companies")
+      .select("name, owner_user_id")
+      .eq("id", invoice.empresa_id)
+      .single();
+
+    const { data: ownerProfile } = company
+      ? await supabase.from("profiles").select("email").eq("id", company.owner_user_id).single()
+      : { data: null };
+
+    if (company && ownerProfile?.email) {
+      const periodStart = invoice.due_date;
+      const periodEndDate = new Date(invoice.due_date);
+      periodEndDate.setMonth(periodEndDate.getMonth() + 1);
+      periodEndDate.setDate(periodEndDate.getDate() - 1);
+      const periodEnd = periodEndDate.toISOString().slice(0, 10);
+      const paidAt = new Date().toISOString().slice(0, 10);
+
+      const pdf = await buildInvoiceReceiptPdf({
+        companyName: company.name,
+        ownerEmail: ownerProfile.email,
+        periodStart,
+        periodEnd,
+        totalAmount: invoice.total_amount,
+        paidAt,
+        invoiceId: invoice.id,
+      });
+
+      const emailResult = await sendEmail({
+        to: ownerProfile.email,
+        subject: `Recibo de pago H07 - ${company.name}`,
+        html: `<p>Hola,</p><p>Confirmamos el pago de <strong>${formatCurrency(invoice.total_amount)}</strong> por el periodo del ${formatDate(periodStart)} al ${formatDate(periodEnd)}. Adjuntamos el recibo en PDF.</p>`,
+        attachments: [{ filename: `recibo-h07-${invoice.id}.pdf`, content: pdf.toString("base64") }],
+      });
+
+      if (!emailResult.success) {
+        console.log("[bold-webhook] no se pudo enviar el recibo por correo", emailResult.message);
+      }
+    }
+  } catch (receiptError) {
+    console.log("[bold-webhook] error generando/enviando el recibo", receiptError);
+  }
+
   return NextResponse.json({ ok: true });
 }

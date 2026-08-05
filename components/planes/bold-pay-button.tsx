@@ -21,6 +21,7 @@ export function BoldPayButton({
   integritySignature,
   description,
   redirectionUrl,
+  customerEmail,
 }: {
   orderId: string;
   amount: number;
@@ -29,6 +30,7 @@ export function BoldPayButton({
   integritySignature: string;
   description: string;
   redirectionUrl: string;
+  customerEmail?: string;
 }) {
   const [scriptReady, setScriptReady] = useState(false);
   const checkoutRef = useRef<BoldCheckoutInstance | null>(null);
@@ -44,8 +46,21 @@ export function BoldPayButton({
       integritySignature,
       description,
       redirectionUrl,
+      // Siempre el correo del propietario de la empresa, nunca el del
+      // empleado que esté haciendo clic en "Pagar".
+      ...(customerEmail ? { customerData: { email: customerEmail } } : {}),
     });
-  }, [scriptReady, orderId, amount, currency, identityKey, integritySignature, description, redirectionUrl]);
+  }, [
+    scriptReady,
+    orderId,
+    amount,
+    currency,
+    identityKey,
+    integritySignature,
+    description,
+    redirectionUrl,
+    customerEmail,
+  ]);
 
   return (
     <>

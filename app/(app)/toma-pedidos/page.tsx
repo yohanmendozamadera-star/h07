@@ -7,10 +7,12 @@ import { getRecentPedidos } from "@/lib/pedidos/queries";
 import { getParkingRates, getOpenMovements } from "@/lib/parqueadero/queries";
 import { getCompanySettings } from "@/lib/configuraciones/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
+import { getOrderLockStatus } from "@/lib/pedidos/order-lock";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TomaPedidosClient } from "@/components/pedidos/toma-pedidos-client";
 import type { PedidoItemChannel } from "@/lib/pedidos/types";
+import { formatCurrency, formatDate } from "@/lib/format";
 import { createPedido } from "./actions";
 
 export default async function TomaPedidosPage() {
@@ -24,16 +26,18 @@ export default async function TomaPedidosPage() {
     return <ModulePlaceholder title="Toma Pedidos" description="No tienes permiso para ver este módulo." denied />;
   }
 
-  const [items, clients, technicians, orders, settings, rates, openMovements, planActive] = await Promise.all([
-    getCatalogItems(),
-    getClients(),
-    getTecnicos(),
-    canViewPedidos ? getRecentPedidos() : Promise.resolve([]),
-    user ? getCompanySettings(user.empresaId) : null,
-    canViewParqueadero ? getParkingRates() : Promise.resolve([]),
-    canViewParqueadero ? getOpenMovements() : Promise.resolve([]),
-    hasActivePlan(user!.empresaId),
-  ]);
+  const [items, clients, technicians, orders, settings, rates, openMovements, planActive, orderLock] =
+    await Promise.all([
+      getCatalogItems(),
+      getClients(),
+      getTecnicos(),
+      canViewPedidos ? getRecentPedidos() : Promise.resolve([]),
+      user ? getCompanySettings(user.empresaId) : null,
+      canViewParqueadero ? getParkingRates() : Promise.resolve([]),
+      canViewParqueadero ? getOpenMovements() : Promise.resolve([]),
+      hasActivePlan(user!.empresaId),
+      getOrderLockStatus(user!.empresaId),
+    ]);
 
   const enabledChannels: PedidoItemChannel[] = [
     ...(canViewPedidos && settings?.lavanderia_enabled ? (["lavanderia"] as const) : []),
@@ -48,6 +52,16 @@ export default async function TomaPedidosPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-semibold tracking-tight">Toma Pedidos</h1>
+
+      {canViewPedidos && orderLock.blocked && (
+        <Alert className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30">
+          <AlertDescription>
+            Toma Pedidos está bloqueado: la factura de {formatCurrency(orderLock.totalAmount)} venció el{" "}
+            {formatDate(orderLock.dueDate)} y sigue sin pagarse. Ve a <Link href="/planes">Planes</Link> para ponerte
+            al día y reactivarlo. El resto de la aplicación sigue funcionando con normalidad.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {canViewPedidos && !planActive && (
         <Alert className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30">
@@ -66,6 +80,7 @@ export default async function TomaPedidosPage() {
         technicians={technicians}
         orders={orders}
         canCreatePedido={can(permissions, "pedidos.create")}
+        pedidosBlocked={orderLock.blocked}
         createPedidoAction={createPedido}
         parkingRates={activeRates}
         openMovements={openMovements}
