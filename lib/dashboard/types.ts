@@ -17,8 +17,15 @@ export type TechnicianProductivity = {
   totalAmount: number;
 };
 
-export type MonthlyGoal = {
-  fixed_cost: number;
-  margin_percent: number;
-  goal_amount: number;
+// Punto de equilibrio: totalmente calculado a partir de gastos (fijo/variable),
+// compras (costo de lo vendido) y ventas reales de los últimos meses — el
+// dueño no tiene que adivinar ni escribir ningún número.
+export type BreakEvenData = {
+  monthsUsed: number;
+  hasEnoughData: boolean;
+  avgFixedCost: number;
+  contributionMarginPercent: number | null;
+  breakEvenAmount: number | null;
+  avgTicket: number;
+  ordersNeeded: number | null;
 };

@@ -31,13 +31,7 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  {
-    href: "/dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    permission: "reportes.view",
-    children: [{ href: "/productividad", label: "Productividad por técnico" }],
-  },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "reportes.view" },
   { href: "/toma-pedidos", label: "Toma Pedidos", icon: ClipboardList, permission: "pedidos.view" },
   {
     href: "/pedidos-historicos",

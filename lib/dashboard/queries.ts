@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getTodayBogota, getMonthStartBogota } from "@/lib/format";
-import type { DashboardSummary, DailySalesPoint, TechnicianProductivity, MonthlyGoal } from "@/lib/dashboard/types";
+import type { DashboardSummary, DailySalesPoint, TechnicianProductivity, BreakEvenData } from "@/lib/dashboard/types";
 
 type OrderRow = { total_amount: number; created_at: string; client_id: string | null };
 type ExpenseRow = { amount: number; expense_date: string };
@@ -120,13 +120,82 @@ export const getTechnicianProductivity = cache(async (): Promise<TechnicianProdu
   return Array.from(byTech.values()).sort((a, b) => b.totalAmount - a.totalAmount);
 });
 
-export const getMonthlyGoal = cache(async (empresaId: string): Promise<MonthlyGoal | null> => {
+// Punto de equilibrio: costo fijo promedio y margen de contribución salen
+// solos de los datos reales de los últimos meses (gastos fijo/variable,
+// compras de inventario, ventas) — no se le pide nada al dueño.
+// "Meses a promediar" se limita a los meses que la empresa realmente lleva
+// activa (mínimo 1, máximo 6) para no diluir el promedio de un negocio nuevo.
+export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenData> => {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("monthly_goals")
-    .select("fixed_cost, margin_percent, goal_amount")
-    .eq("empresa_id", empresaId)
-    .maybeSingle();
 
-  return data;
+  const { data: company } = await supabase.from("companies").select("created_at").eq("id", empresaId).single();
+  const today = new Date(`${getTodayBogota()}T00:00:00`);
+  const companyCreatedAt = company?.created_at ? new Date(company.created_at) : today;
+  const monthsSinceCreated =
+    (today.getFullYear() - companyCreatedAt.getFullYear()) * 12 + (today.getMonth() - companyCreatedAt.getMonth()) + 1;
+  const monthsUsed = Math.min(6, Math.max(1, monthsSinceCreated));
+
+  const rangeStart = new Date(today.getFullYear(), today.getMonth() - (monthsUsed - 1), 1);
+  const rangeStartIso = rangeStart.toISOString().slice(0, 10);
+
+  const [ordersRes, fixedRes, variableRes, purchasesRes] = await Promise.all([
+    supabase
+      .from("orders")
+      .select("total_amount")
+      .eq("empresa_id", empresaId)
+      .eq("status", "completado")
+      .is("deleted_at", null)
+      .gte("created_at", `${rangeStartIso}T00:00:00`)
+      .returns<{ total_amount: number }[]>(),
+    supabase
+      .from("expenses")
+      .select("amount")
+      .eq("empresa_id", empresaId)
+      .eq("type", "fijo")
+      .is("deleted_at", null)
+      .gte("expense_date", rangeStartIso)
+      .returns<{ amount: number }[]>(),
+    supabase
+      .from("expenses")
+      .select("amount")
+      .eq("empresa_id", empresaId)
+      .eq("type", "variable")
+      .is("deleted_at", null)
+      .gte("expense_date", rangeStartIso)
+      .returns<{ amount: number }[]>(),
+    supabase
+      .from("purchases")
+      .select("total_cost")
+      .eq("empresa_id", empresaId)
+      .gte("purchase_date", rangeStartIso)
+      .returns<{ total_cost: number }[]>(),
+  ]);
+
+  const totalSales = (ordersRes.data ?? []).reduce((sum, o) => sum + o.total_amount, 0);
+  const orderCount = ordersRes.data?.length ?? 0;
+  const totalFixed = (fixedRes.data ?? []).reduce((sum, e) => sum + e.amount, 0);
+  const totalVariable =
+    (variableRes.data ?? []).reduce((sum, e) => sum + e.amount, 0) +
+    (purchasesRes.data ?? []).reduce((sum, p) => sum + p.total_cost, 0);
+
+  const hasEnoughData = totalSales > 0;
+  const avgFixedCost = totalFixed / monthsUsed;
+  const contributionMarginPercent = hasEnoughData ? ((totalSales - totalVariable) / totalSales) * 100 : null;
+  const breakEvenAmount =
+    contributionMarginPercent !== null && contributionMarginPercent > 0
+      ? avgFixedCost / (contributionMarginPercent / 100)
+      : null;
+  const avgTicket = orderCount > 0 ? totalSales / orderCount : 0;
+  const ordersNeeded =
+    breakEvenAmount !== null && avgTicket > 0 ? Math.ceil(breakEvenAmount / avgTicket) : null;
+
+  return {
+    monthsUsed,
+    hasEnoughData,
+    avgFixedCost,
+    contributionMarginPercent,
+    breakEvenAmount,
+    avgTicket,
+    ordersNeeded,
+  };
 });
