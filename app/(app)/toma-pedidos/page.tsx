@@ -56,7 +56,7 @@ export default async function TomaPedidosPage() {
       {canViewPedidos && orderLock.blocked && (
         <Alert className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30">
           <AlertDescription>
-            Toma Pedidos está bloqueado: la factura de {formatCurrency(orderLock.totalAmount)} venció el{" "}
+            Toma Pedidos está bloqueado: el cobro de {formatCurrency(orderLock.totalAmount)} venció el{" "}
             {formatDate(orderLock.dueDate)} y sigue sin pagarse. Ve a <Link href="/planes">Planes</Link> para ponerte
             al día y reactivarlo. El resto de la aplicación sigue funcionando con normalidad.
           </AlertDescription>

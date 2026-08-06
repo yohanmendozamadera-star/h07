@@ -24,6 +24,11 @@ export async function inviteUsuarioAction(input: unknown): Promise<ActionResult>
   // existente necesita el cliente con la clave secreta para poder pasar
   // "invited_company_id" en los metadatos y que el trigger tome ese camino
   // en vez de crear otra empresa.
+  // Sin redirectTo, el link de invitación deja a la persona con sesión
+  // iniciada directo en /dashboard sin haber definido ninguna contraseña —
+  // se queda sin saber cómo volver a entrar después. Lo mandamos a crear su
+  // contraseña primero.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://h07.io";
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.inviteUserByEmail(parsed.data.email, {
     data: {
@@ -32,6 +37,7 @@ export async function inviteUsuarioAction(input: unknown): Promise<ActionResult>
       full_name: parsed.data.fullName,
       phone: parsed.data.phone,
     },
+    redirectTo: `${appUrl}/auth/callback?next=/actualizar-password`,
   });
 
   if (error) return { success: false, message: error.message };

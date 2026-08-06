@@ -15,11 +15,11 @@ export function InvoicesTable({ invoices }: { invoices: PlatformInvoiceRow[] }) 
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">Cartera consolidada</CardTitle>
-        <CardDescription>Facturas de todas las empresas</CardDescription>
+        <CardDescription>Cobros de todas las empresas</CardDescription>
       </CardHeader>
       <CardContent>
         {invoices.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Todavía no hay facturas.</p>
+          <p className="text-sm text-muted-foreground">Todavía no hay cobros.</p>
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">

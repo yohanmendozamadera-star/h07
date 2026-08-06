@@ -42,11 +42,11 @@ export function InvoicesTable({
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">Cartera</CardTitle>
-        <CardDescription>Historial de facturas de tu empresa</CardDescription>
+        <CardDescription>Historial de cobros de tu empresa</CardDescription>
       </CardHeader>
       <CardContent>
         {invoices.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Todavía no hay facturas.</p>
+          <p className="text-sm text-muted-foreground">Todavía no hay cobros.</p>
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">

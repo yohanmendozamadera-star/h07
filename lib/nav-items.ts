@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   CreditCard,
+  KeyRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -37,6 +38,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/inventario", label: "Inventario", icon: Boxes, permission: "inventario.view" },
   { href: "/gastos", label: "Gastos", icon: Wallet, permission: "gastos.view" },
   { href: "/usuarios", label: "Usuarios", icon: Users, permission: "usuarios.manage" },
+  { href: "/roles", label: "Roles y Permisos", icon: KeyRound, permission: "usuarios.manage" },
   { href: "/configuraciones", label: "Configuraciones", icon: Settings, permission: "configuraciones.manage" },
   { href: "/planes", label: "Planes", icon: CreditCard, permission: "planes.view" },
   { href: "/auditoria", label: "Auditoría", icon: ScrollText, permission: "auditoria.view" },

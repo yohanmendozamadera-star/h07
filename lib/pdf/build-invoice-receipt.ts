@@ -31,7 +31,7 @@ export function buildInvoiceReceiptPdf(data: InvoiceReceiptData): Promise<Buffer
     doc.fontSize(11).fillColor("#444444");
     doc.text(`Empresa: ${data.companyName}`);
     doc.text(`Usuario (propietario): ${data.ownerEmail}`);
-    doc.text(`Referencia de factura: ${data.invoiceId}`);
+    doc.text(`Referencia: ${data.invoiceId}`);
     doc.moveDown(0.5);
     doc.text(`Periodo pagado: del ${formatDate(data.periodStart)} al ${formatDate(data.periodEnd)}`);
     doc.text(`Fecha de pago: ${formatDate(data.paidAt)}`);

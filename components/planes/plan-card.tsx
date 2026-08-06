@@ -184,7 +184,7 @@ export function PlanCard({
             <DialogTitle>Confirmar cambio de plan</DialogTitle>
             <DialogDescription>
               ¿Estás seguro que quieres cambiar al plan {target && TIER_NAMES[target.tier]}?
-              {target && target.planCode !== "free" && " Se generará la factura correspondiente a este periodo."}
+              {target && target.planCode !== "free" && " Se generará el cobro correspondiente a este periodo."}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
