@@ -1,10 +1,12 @@
+import { NextRequest } from "next/server";
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getPedidosHistoricos } from "@/lib/pedidos/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
+import { paymentMethodLabel } from "@/lib/pedidos/types";
 import { buildExcelResponse } from "@/lib/excel/build-workbook";
-import { formatDateTime } from "@/lib/format";
+import { getTodayBogota, formatDateTime } from "@/lib/format";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !can(user.permissions, "pedidos.view")) {
     return new Response("No autorizado", { status: 403 });
@@ -16,7 +18,12 @@ export async function GET() {
     return new Response("El historial completo es un beneficio de los planes pagos.", { status: 403 });
   }
 
-  const orders = await getPedidosHistoricos();
+  const today = getTodayBogota();
+  const searchParams = request.nextUrl.searchParams;
+  const from = searchParams.get("from") ?? today;
+  const to = searchParams.get("to") ?? today;
+
+  const orders = await getPedidosHistoricos(from, to);
 
   return buildExcelResponse(
     [
@@ -35,7 +42,7 @@ export async function GET() {
           numero: order.order_number,
           cliente: order.client_name ?? "",
           placa: order.plate ?? "",
-          pago: order.payment_method ?? "",
+          pago: paymentMethodLabel(order.payment_method),
           total: order.total_amount,
           fecha: formatDateTime(order.created_at),
           estado: order.status,

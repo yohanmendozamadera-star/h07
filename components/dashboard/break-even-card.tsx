@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BreakEvenChart } from "@/components/dashboard/break-even-chart";
 import type { BreakEvenData } from "@/lib/dashboard/types";
 import { formatCurrency } from "@/lib/format";
 
@@ -70,6 +71,8 @@ export function BreakEvenCard({ data, salesMonth }: { data: BreakEvenData; sales
             <div className="h-full rounded-full bg-primary" style={{ width: `${progressPercent}%` }} />
           </div>
         </div>
+
+        <BreakEvenChart data={data} />
       </CardContent>
     </Card>
   );

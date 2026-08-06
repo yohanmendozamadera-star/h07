@@ -33,23 +33,28 @@ export const getRecentPedidos = cache(async (): Promise<OrderListItem[]> => {
   return data ?? [];
 });
 
-// Histórico completo: TODOS los pedidos, sin importar su antigüedad. La
-// página que llama a esta función ya bloquea el acceso completo si la
-// empresa no tiene un plan pago activo (ver app/(app)/pedidos-historicos),
-// así que aquí no hay ningún recorte adicional por plan.
-export const getPedidosHistoricos = cache(async (): Promise<OrderListItem[]> => {
-  const supabase = await createClient();
+// Histórico completo filtrado por rango de fechas (por defecto, solo hoy —
+// ver DateRangeFilter). La página que llama a esta función ya bloquea el
+// acceso completo si la empresa no tiene un plan pago activo (ver
+// app/(app)/pedidos-historicos), así que aquí no hay ningún recorte
+// adicional por plan.
+export const getPedidosHistoricos = cache(
+  async (dateFrom: string, dateTo: string): Promise<OrderListItem[]> => {
+    const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("orders")
-    .select("id, order_number, client_name, plate, payment_method, total_amount, status, created_at")
-    .in("channel", PEDIDO_CHANNELS)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(200);
+    const { data } = await supabase
+      .from("orders")
+      .select("id, order_number, client_name, plate, payment_method, total_amount, status, created_at")
+      .in("channel", PEDIDO_CHANNELS)
+      .is("deleted_at", null)
+      .gte("created_at", `${dateFrom}T00:00:00`)
+      .lte("created_at", `${dateTo}T23:59:59`)
+      .order("created_at", { ascending: false })
+      .limit(2000);
 
-  return data ?? [];
-});
+    return data ?? [];
+  },
+);
 
 type WorkshopFollowUpRow = {
   order_id: string;

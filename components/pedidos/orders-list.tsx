@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { OrderListItem } from "@/lib/pedidos/types";
+import { paymentMethodLabel } from "@/lib/pedidos/types";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
 export function OrdersList({ orders }: { orders: OrderListItem[] }) {
@@ -27,7 +28,7 @@ export function OrdersList({ orders }: { orders: OrderListItem[] }) {
               <td className="p-2">{order.order_number}</td>
               <td className="p-2">{order.client_name ?? "—"}</td>
               <td className="p-2">{order.plate ?? "—"}</td>
-              <td className="p-2">{order.payment_method ?? "—"}</td>
+              <td className="p-2">{paymentMethodLabel(order.payment_method)}</td>
               <td className="p-2">{formatCurrency(order.total_amount)}</td>
               <td className="p-2">{formatDateTime(order.created_at)}</td>
               <td className="p-2">

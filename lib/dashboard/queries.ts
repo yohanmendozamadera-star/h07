@@ -1,7 +1,12 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { getTodayBogota, getMonthStartBogota } from "@/lib/format";
-import type { DashboardSummary, DailySalesPoint, TechnicianProductivity, BreakEvenData } from "@/lib/dashboard/types";
+import { getTodayBogota, getMonthStartBogota, toBogotaDateString } from "@/lib/format";
+import type {
+  DashboardSummary,
+  DailySalesPoint,
+  TechnicianProductivityDetailRow,
+  BreakEvenData,
+} from "@/lib/dashboard/types";
 
 type OrderRow = { total_amount: number; created_at: string; client_id: string | null };
 type ExpenseRow = { amount: number; expense_date: string };
@@ -64,6 +69,7 @@ export const getDashboardSummary = cache(async (): Promise<DashboardSummary> => 
 export const getDailySales = cache(async (): Promise<DailySalesPoint[]> => {
   const supabase = await createClient();
   const monthStart = getMonthStartBogota();
+  const today = getTodayBogota();
 
   const { data } = await supabase
     .from("orders")
@@ -75,50 +81,65 @@ export const getDailySales = cache(async (): Promise<DailySalesPoint[]> => {
 
   const byDate = new Map<string, number>();
   for (const order of data ?? []) {
-    const date = order.created_at.slice(0, 10);
+    // created_at es UTC — agrupar por sus primeros 10 caracteres corría mal
+    // las órdenes creadas entre 7pm y medianoche hora Colombia (caían del
+    // lado del día siguiente en UTC).
+    const date = toBogotaDateString(new Date(order.created_at));
     byDate.set(date, (byDate.get(date) ?? 0) + order.total_amount);
   }
 
-  return Array.from(byDate.entries())
-    .map(([date, total]) => ({ date, total }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  // Serie completa día 1 -> hoy (no solo los días con ventas): así el eje
+  // representa el calendario real y la tendencia se ve correctamente incluso
+  // con pocos días de ventas dispersos en el mes.
+  const [year, month] = monthStart.split("-").map(Number);
+  const lastDay = Number(today.split("-")[2]);
+  const points: DailySalesPoint[] = [];
+  for (let day = 1; day <= lastDay; day++) {
+    const date = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    points.push({ date, total: byDate.get(date) ?? 0 });
+  }
+  return points;
 });
 
 type TechnicianOrderRow = {
+  id: string;
+  order_number: string;
   total_amount: number;
+  created_at: string;
   technician_id: string | null;
   technician: { full_name: string } | null;
 };
 
-export const getTechnicianProductivity = cache(async (): Promise<TechnicianProductivity[]> => {
-  const supabase = await createClient();
-  const monthStart = getMonthStartBogota();
+// Detalle por pedido (no agregado): necesario para mostrar la fecha del
+// servicio y exportar el detalle real, filtrado por el rango desde/hasta
+// (por defecto, solo hoy — ver DateRangeFilter).
+export const getTechnicianProductivityDetail = cache(
+  async (dateFrom: string, dateTo: string): Promise<TechnicianProductivityDetailRow[]> => {
+    const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("orders")
-    .select("total_amount, technician_id, technician:profiles!orders_technician_id_fkey(full_name)")
-    .eq("status", "completado")
-    .is("deleted_at", null)
-    .not("technician_id", "is", null)
-    .gte("created_at", `${monthStart}T00:00:00`)
-    .returns<TechnicianOrderRow[]>();
+    const { data } = await supabase
+      .from("orders")
+      .select("id, order_number, total_amount, created_at, technician_id, technician:profiles!orders_technician_id_fkey(full_name)")
+      .eq("status", "completado")
+      .is("deleted_at", null)
+      .not("technician_id", "is", null)
+      .gte("created_at", `${dateFrom}T00:00:00`)
+      .lte("created_at", `${dateTo}T23:59:59`)
+      .order("created_at", { ascending: false })
+      .returns<TechnicianOrderRow[]>();
 
-  const byTech = new Map<string, TechnicianProductivity>();
-  for (const row of data ?? []) {
-    if (!row.technician_id) continue;
-    const existing = byTech.get(row.technician_id) ?? {
-      technicianId: row.technician_id,
-      technicianName: row.technician?.full_name ?? "—",
-      orderCount: 0,
-      totalAmount: 0,
-    };
-    existing.orderCount += 1;
-    existing.totalAmount += row.total_amount;
-    byTech.set(row.technician_id, existing);
-  }
-
-  return Array.from(byTech.values()).sort((a, b) => b.totalAmount - a.totalAmount);
-});
+    return (data ?? [])
+      .filter((row) => row.technician_id)
+      .map((row) => ({
+        orderId: row.id,
+        orderNumber: row.order_number,
+        date: row.created_at,
+        technicianId: row.technician_id!,
+        technicianName: row.technician?.full_name ?? "—",
+        totalAmount: row.total_amount,
+      }));
+  },
+);
 
 // Punto de equilibrio: costo fijo promedio y margen de contribución salen
 // solos de los datos reales de los últimos meses (gastos fijo/variable,
@@ -141,12 +162,12 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
   const [ordersRes, fixedRes, variableRes, purchasesRes] = await Promise.all([
     supabase
       .from("orders")
-      .select("total_amount")
+      .select("total_amount, created_at")
       .eq("empresa_id", empresaId)
       .eq("status", "completado")
       .is("deleted_at", null)
       .gte("created_at", `${rangeStartIso}T00:00:00`)
-      .returns<{ total_amount: number }[]>(),
+      .returns<{ total_amount: number; created_at: string }[]>(),
     supabase
       .from("expenses")
       .select("amount")
@@ -189,6 +210,20 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
   const ordersNeeded =
     breakEvenAmount !== null && avgTicket > 0 ? Math.ceil(breakEvenAmount / avgTicket) : null;
 
+  // Ventas por mes dentro de la misma ventana, para el gráfico de barras
+  // (una barra por mes) comparado contra la línea del punto de equilibrio.
+  const salesByMonth = new Map<string, number>();
+  for (const order of ordersRes.data ?? []) {
+    const month = toBogotaDateString(new Date(order.created_at)).slice(0, 7);
+    salesByMonth.set(month, (salesByMonth.get(month) ?? 0) + order.total_amount);
+  }
+  const monthlySales: { month: string; total: number }[] = [];
+  for (let i = monthsUsed - 1; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthlySales.push({ month: key, total: salesByMonth.get(key) ?? 0 });
+  }
+
   return {
     monthsUsed,
     hasEnoughData,
@@ -197,5 +232,6 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
     breakEvenAmount,
     avgTicket,
     ordersNeeded,
+    monthlySales,
   };
 });

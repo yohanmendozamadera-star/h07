@@ -14,6 +14,13 @@ export type OrderListItem = {
 
 export const PAYMENT_METHODS = ["Efectivo", "Transferencia", "Tarjeta"] as const;
 
+// El negocio le dice "Datáfono" al pago con tarjeta — se muestra así en
+// reportes sin tocar el valor "Tarjeta" ya guardado en pedidos existentes.
+export function paymentMethodLabel(method: string | null): string {
+  if (!method) return "Sin especificar";
+  return method === "Tarjeta" ? "Datáfono" : method;
+}
+
 // Para gestión comercial de Taller: pedidos finalizados con una fecha de
 // próxima visita recomendada (order_workshop_details.next_visit_date).
 export type TallerFollowUp = {

@@ -1,11 +1,15 @@
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getPedidosHistoricos, getTallerFollowUps } from "@/lib/pedidos/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
+import { getTodayBogota } from "@/lib/format";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { PedidosHistoricosClient } from "@/components/pedidos/pedidos-historicos-client";
-import { ExportButton } from "@/components/shared/export-button";
 
-export default async function PedidosHistoricosPage() {
+export default async function PedidosHistoricosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
   const user = await getCurrentUser();
   const permissions = user?.permissions ?? [];
 
@@ -24,21 +28,32 @@ export default async function PedidosHistoricosPage() {
     );
   }
 
-  const [orders, tallerFollowUps] = await Promise.all([getPedidosHistoricos(), getTallerFollowUps()]);
+  const params = await searchParams;
+  const today = getTodayBogota();
+  const dateFrom = params.from ?? today;
+  const dateTo = params.to ?? today;
+
+  const [orders, tallerFollowUps] = await Promise.all([
+    getPedidosHistoricos(dateFrom, dateTo),
+    getTallerFollowUps(),
+  ]);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Pedidos Históricos</h1>
-          <p className="text-sm text-muted-foreground">
-            Registro completo de pedidos de Lavandería, Productos y Taller.
-          </p>
-        </div>
-        <ExportButton href="/pedidos-historicos/export" />
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Pedidos Históricos</h1>
+        <p className="text-sm text-muted-foreground">
+          Registro completo de pedidos de Lavandería, Productos y Taller.
+        </p>
       </div>
 
-      <PedidosHistoricosClient orders={orders} tallerFollowUps={tallerFollowUps} />
+      <PedidosHistoricosClient
+        orders={orders}
+        tallerFollowUps={tallerFollowUps}
+        defaultFrom={today}
+        defaultTo={today}
+        exportHref={`/pedidos-historicos/export?from=${dateFrom}&to=${dateTo}`}
+      />
     </div>
   );
 }

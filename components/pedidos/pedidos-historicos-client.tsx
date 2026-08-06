@@ -3,6 +3,9 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { OrdersList } from "@/components/pedidos/orders-list";
+import { OrdersSummary } from "@/components/pedidos/orders-summary";
+import { DateRangeFilter } from "@/components/shared/date-range-filter";
+import { ExportButton } from "@/components/shared/export-button";
 import type { OrderListItem, TallerFollowUp } from "@/lib/pedidos/types";
 import { formatDate, getTodayBogota } from "@/lib/format";
 
@@ -55,9 +58,15 @@ function TallerFollowUpsTable({ followUps }: { followUps: TallerFollowUp[] }) {
 export function PedidosHistoricosClient({
   orders,
   tallerFollowUps,
+  defaultFrom,
+  defaultTo,
+  exportHref,
 }: {
   orders: OrderListItem[];
   tallerFollowUps: TallerFollowUp[];
+  defaultFrom: string;
+  defaultTo: string;
+  exportHref: string;
 }) {
   return (
     <Tabs defaultValue="todos">
@@ -66,7 +75,12 @@ export function PedidosHistoricosClient({
         <TabsTrigger value="taller">Seguimiento Taller</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="todos" className="pt-3">
+      <TabsContent value="todos" className="space-y-4 pt-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <DateRangeFilter defaultFrom={defaultFrom} defaultTo={defaultTo} />
+          <ExportButton href={exportHref} />
+        </div>
+        <OrdersSummary orders={orders} />
         <OrdersList orders={orders} />
       </TabsContent>
 

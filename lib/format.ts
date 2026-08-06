@@ -56,3 +56,23 @@ export function getMonthStartBogota(): string {
   const [year, month] = getTodayBogota().split("-");
   return `${year}-${month}-01`;
 }
+
+// created_at es un timestamptz en UTC — tomar sus primeros 10 caracteres
+// directamente agrupa mal las órdenes creadas entre las 7pm y medianoche
+// hora Colombia (caen del lado siguiente del día en UTC). Esta función
+// convierte primero a la fecha calendario real en Bogotá.
+export function toBogotaDateString(date: Date): string {
+  return isoDatePartsFormatter.format(date);
+}
+
+const monthLabelFormatter = new Intl.DateTimeFormat("es-CO", {
+  timeZone: "America/Bogota",
+  month: "short",
+  year: "numeric",
+});
+
+/** "AAAA-MM" -> "may 2026", para ejes de gráficas mensuales. */
+export function formatMonthLabel(yearMonth: string): string {
+  const [year, month] = yearMonth.split("-").map(Number);
+  return monthLabelFormatter.format(new Date(Date.UTC(year, month - 1, 15)));
+}
