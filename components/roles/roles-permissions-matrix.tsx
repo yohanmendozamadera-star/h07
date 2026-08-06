@@ -92,7 +92,7 @@ export function RolesPermissionsMatrix({
       <CardContent>
         <div className="overflow-x-auto rounded-md border">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+            <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
               <tr>
                 <th className="p-2 font-medium">Permiso</th>
                 <th className="p-2 text-center font-medium">Propietario</th>

@@ -45,7 +45,7 @@ export function InventarioClient({
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Producto</th>
                   <th className="p-2 font-medium">Comprado</th>
@@ -78,7 +78,7 @@ export function InventarioClient({
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Producto</th>
                   <th className="p-2 font-medium">Proveedor</th>
@@ -113,7 +113,7 @@ export function InventarioClient({
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Producto</th>
                   <th className="p-2 font-medium">Cantidad</th>

@@ -23,7 +23,7 @@ export function InvoicesTable({ invoices }: { invoices: PlatformInvoiceRow[] }) 
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Empresa</th>
                   <th className="p-2 font-medium">Periodo</th>
@@ -42,7 +42,7 @@ export function InvoicesTable({ invoices }: { invoices: PlatformInvoiceRow[] }) 
                     <td className="p-2">{formatDate(invoice.due_date)}</td>
                     <td className="p-2">{formatCurrency(invoice.total_amount)}</td>
                     <td className="p-2">
-                      <Badge variant={invoice.status === "paid" ? "secondary" : "outline"}>
+                      <Badge variant={invoice.status === "paid" ? "success" : "outline"}>
                         {STATUS_LABELS[invoice.status]}
                       </Badge>
                     </td>

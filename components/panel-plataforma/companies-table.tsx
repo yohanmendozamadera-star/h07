@@ -36,7 +36,7 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Empresa</th>
                   <th className="p-2 font-medium">Propietario</th>
@@ -61,7 +61,7 @@ export function CompaniesTable({ companies }: { companies: CompanyRow[] }) {
                         disabled={pendingId === company.id}
                         onClick={() => handleToggleStatus(company)}
                       >
-                        <Badge variant={company.status === "active" ? "secondary" : "outline"}>
+                        <Badge variant={company.status === "active" ? "success" : "outline"}>
                           {company.status === "active" ? "Activa" : "Suspendida"}
                         </Badge>
                       </Button>

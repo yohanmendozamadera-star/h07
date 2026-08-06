@@ -3,6 +3,7 @@ import { getCompanySettings, getExpenseCategories, getSuppliers } from "@/lib/co
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { SettingsForm } from "@/components/configuraciones/settings-form";
 import { SharedCatalogManager } from "@/components/configuraciones/shared-catalog-manager";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   createExpenseCategoryAction,
   toggleExpenseCategoryAction,
@@ -34,23 +35,37 @@ export default async function ConfiguracionesPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-semibold tracking-tight">Configuraciones</h1>
 
-      <SettingsForm settings={settings} />
+      <Tabs defaultValue="modulos">
+        <TabsList>
+          <TabsTrigger value="modulos">Módulos y preferencias</TabsTrigger>
+          <TabsTrigger value="categorias-gasto">Categorías de gasto</TabsTrigger>
+          <TabsTrigger value="proveedores">Proveedores</TabsTrigger>
+        </TabsList>
 
-      <SharedCatalogManager
-        title="Categorías de gasto"
-        description="Compartidas entre todas las empresas de la plataforma (igual que Proveedores)."
-        items={expenseCategories}
-        onCreate={createExpenseCategoryAction}
-        onToggle={toggleExpenseCategoryAction}
-      />
+        <TabsContent value="modulos" className="pt-3">
+          <SettingsForm settings={settings} />
+        </TabsContent>
 
-      <SharedCatalogManager
-        title="Proveedores"
-        description="Usados en compras y gastos."
-        items={suppliers}
-        onCreate={createSupplierAction}
-        onToggle={toggleSupplierAction}
-      />
+        <TabsContent value="categorias-gasto" className="pt-3">
+          <SharedCatalogManager
+            title="Categorías de gasto"
+            description="Compartidas entre todas las empresas de la plataforma (igual que Proveedores)."
+            items={expenseCategories}
+            onCreate={createExpenseCategoryAction}
+            onToggle={toggleExpenseCategoryAction}
+          />
+        </TabsContent>
+
+        <TabsContent value="proveedores" className="pt-3">
+          <SharedCatalogManager
+            title="Proveedores"
+            description="Usados en compras y gastos."
+            items={suppliers}
+            onCreate={createSupplierAction}
+            onToggle={toggleSupplierAction}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

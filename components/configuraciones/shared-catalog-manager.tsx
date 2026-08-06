@@ -82,7 +82,7 @@ export function SharedCatalogManager({
               <li key={item.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
                 <span>{item.name}</span>
                 <Button variant="ghost" size="sm" disabled={pendingId === item.id} onClick={() => handleToggle(item)}>
-                  <Badge variant={item.is_active ? "secondary" : "outline"}>
+                  <Badge variant={item.is_active ? "success" : "outline"}>
                     {item.is_active ? "Activo" : "Inactivo"}
                   </Badge>
                 </Button>

@@ -11,7 +11,7 @@ export function OrdersList({ orders }: { orders: OrderListItem[] }) {
   return (
     <div className="overflow-x-auto rounded-md border">
       <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+        <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
           <tr>
             <th className="p-2 font-medium">Número</th>
             <th className="p-2 font-medium">Cliente</th>
@@ -32,7 +32,7 @@ export function OrdersList({ orders }: { orders: OrderListItem[] }) {
               <td className="p-2">{formatCurrency(order.total_amount)}</td>
               <td className="p-2">{formatDateTime(order.created_at)}</td>
               <td className="p-2">
-                <Badge variant={order.status === "completado" ? "secondary" : "outline"}>{order.status}</Badge>
+                <Badge variant={order.status === "completado" ? "success" : "outline"}>{order.status}</Badge>
               </td>
             </tr>
           ))}

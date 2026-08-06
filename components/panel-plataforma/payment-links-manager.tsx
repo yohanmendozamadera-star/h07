@@ -105,7 +105,7 @@ export function PaymentLinksManager({
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Empresa</th>
                   <th className="p-2 font-medium">Nombre</th>
@@ -125,7 +125,7 @@ export function PaymentLinksManager({
                     <td className="p-2">{link.amount ? formatCurrency(link.amount) : "—"}</td>
                     <td className="p-2">
                       <Button variant="ghost" size="sm" disabled={pendingId === link.id} onClick={() => handleToggle(link)}>
-                        <Badge variant={link.is_active ? "secondary" : "outline"}>
+                        <Badge variant={link.is_active ? "success" : "outline"}>
                           {link.is_active ? "Activo" : "Inactivo"}
                         </Badge>
                       </Button>

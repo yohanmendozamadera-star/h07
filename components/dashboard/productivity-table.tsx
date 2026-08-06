@@ -1,8 +1,6 @@
-import Link from "next/link";
-import { Download } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { DateRangeFilter } from "@/components/shared/date-range-filter";
+import { ExportButton } from "@/components/shared/export-button";
 import type { TechnicianProductivityDetailRow } from "@/lib/dashboard/types";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
@@ -38,12 +36,7 @@ export function ProductivityTable({
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <DateRangeFilter defaultFrom={defaultFrom} defaultTo={defaultTo} />
-        <Link href={exportHref}>
-          <Button type="button" variant="outline" size="sm" className="gap-1.5">
-            <Download className="size-3.5" />
-            Exportar a Excel
-          </Button>
-        </Link>
+        <ExportButton href={exportHref} />
       </div>
 
       <Card>
@@ -59,7 +52,7 @@ export function ProductivityTable({
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <table className="w-full text-sm">
-                <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+                <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                   <tr>
                     <th className="p-2 font-medium">Técnico</th>
                     <th className="p-2 font-medium">Pedidos</th>
@@ -89,7 +82,7 @@ export function ProductivityTable({
           <CardContent>
             <div className="overflow-x-auto rounded-md border">
               <table className="w-full text-sm">
-                <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+                <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                   <tr>
                     <th className="p-2 font-medium">Fecha</th>
                     <th className="p-2 font-medium">Técnico</th>

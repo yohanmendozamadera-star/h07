@@ -53,7 +53,7 @@ export function PaymentsTable({ payments }: { payments: PlatformPaymentRow[] }) 
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+              <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                 <tr>
                   <th className="p-2 font-medium">Empresa</th>
                   <th className="p-2 font-medium">Monto</th>
@@ -69,7 +69,7 @@ export function PaymentsTable({ payments }: { payments: PlatformPaymentRow[] }) 
                     <td className="p-2">{formatCurrency(payment.amount)}</td>
                     <td className="p-2">{formatDateTime(payment.reported_at)}</td>
                     <td className="p-2">
-                      <Badge variant={payment.status === "approved" ? "secondary" : "outline"}>
+                      <Badge variant={payment.status === "approved" ? "success" : "outline"}>
                         {STATUS_LABELS[payment.status]}
                       </Badge>
                     </td>

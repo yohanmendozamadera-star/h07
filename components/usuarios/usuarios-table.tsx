@@ -36,7 +36,7 @@ export function UsuariosTable({ usuarios, currentUserId }: { usuarios: UsuarioRo
   return (
     <div className="overflow-x-auto rounded-md border">
       <table className="w-full text-sm">
-        <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+        <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
           <tr>
             <th className="p-2 font-medium">Nombre</th>
             <th className="p-2 font-medium">Correo</th>
@@ -69,7 +69,7 @@ export function UsuariosTable({ usuarios, currentUserId }: { usuarios: UsuarioRo
                 </td>
                 <td className="p-2">
                   {isPropietario || isSelf ? (
-                    <Badge variant={usuario.is_active ? "secondary" : "outline"}>
+                    <Badge variant={usuario.is_active ? "success" : "outline"}>
                       {usuario.is_active ? "Activo" : "Inactivo"}
                     </Badge>
                   ) : (
@@ -79,7 +79,7 @@ export function UsuariosTable({ usuarios, currentUserId }: { usuarios: UsuarioRo
                       disabled={pendingId === usuario.id}
                       onClick={() => handleToggleActive(usuario)}
                     >
-                      <Badge variant={usuario.is_active ? "secondary" : "outline"}>
+                      <Badge variant={usuario.is_active ? "success" : "outline"}>
                         {usuario.is_active ? "Activo" : "Inactivo"}
                       </Badge>
                     </Button>

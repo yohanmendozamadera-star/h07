@@ -86,7 +86,7 @@ export function ServiciosClient({
               ) : (
                 <div className="overflow-x-auto rounded-md border">
                   <table className="w-full text-sm">
-                    <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+                    <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                       <tr>
                         <th className="p-2 font-medium">Nombre</th>
                         <th className="p-2 font-medium">Precio</th>
@@ -114,12 +114,12 @@ export function ServiciosClient({
                                 disabled={pendingId === item.id}
                                 onClick={() => handleToggleItem(item)}
                               >
-                                <Badge variant={item.is_active ? "secondary" : "outline"}>
+                                <Badge variant={item.is_active ? "success" : "outline"}>
                                   {item.is_active ? "Activo" : "Inactivo"}
                                 </Badge>
                               </Button>
                             ) : (
-                              <Badge variant={item.is_active ? "secondary" : "outline"}>
+                              <Badge variant={item.is_active ? "success" : "outline"}>
                                 {item.is_active ? "Activo" : "Inactivo"}
                               </Badge>
                             )}
@@ -148,7 +148,7 @@ export function ServiciosClient({
             ) : (
               <div className="overflow-x-auto rounded-md border">
                 <table className="w-full text-sm">
-                  <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+                  <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
                     <tr>
                       <th className="p-2 font-medium">Nombre</th>
                       <th className="p-2 font-medium">Tipo</th>
@@ -171,12 +171,12 @@ export function ServiciosClient({
                               disabled={pendingId === rate.id}
                               onClick={() => handleToggleRate(rate)}
                             >
-                              <Badge variant={rate.is_active ? "secondary" : "outline"}>
+                              <Badge variant={rate.is_active ? "success" : "outline"}>
                                 {rate.is_active ? "Activo" : "Inactivo"}
                               </Badge>
                             </Button>
                           ) : (
-                            <Badge variant={rate.is_active ? "secondary" : "outline"}>
+                            <Badge variant={rate.is_active ? "success" : "outline"}>
                               {rate.is_active ? "Activo" : "Inactivo"}
                             </Badge>
                           )}
