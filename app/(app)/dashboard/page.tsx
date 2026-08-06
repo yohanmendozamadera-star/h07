@@ -1,14 +1,8 @@
 import { getCurrentUser, can } from "@/lib/permissions";
-import {
-  getDashboardSummary,
-  getDailySales,
-  getTechnicianProductivity,
-  getMonthlyGoal,
-} from "@/lib/dashboard/queries";
+import { getDashboardSummary, getDailySales, getMonthlyGoal } from "@/lib/dashboard/queries";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { DailySalesChart } from "@/components/dashboard/daily-sales-chart";
-import { ProductivityTable } from "@/components/dashboard/productivity-table";
 import { MonthlyGoalCard } from "@/components/dashboard/monthly-goal-card";
 
 export default async function DashboardPage() {
@@ -19,10 +13,9 @@ export default async function DashboardPage() {
     return <ModulePlaceholder title="Dashboard" description="No tienes permiso para ver este módulo." denied />;
   }
 
-  const [summary, dailySales, productivity, goal] = await Promise.all([
+  const [summary, dailySales, goal] = await Promise.all([
     getDashboardSummary(),
     getDailySales(),
-    getTechnicianProductivity(),
     getMonthlyGoal(user!.empresaId),
   ]);
 
@@ -33,7 +26,6 @@ export default async function DashboardPage() {
       <SummaryCards summary={summary} />
       <DailySalesChart points={dailySales} />
       <MonthlyGoalCard goal={goal} salesMonth={summary.salesMonth} />
-      <ProductivityTable rows={productivity} />
     </div>
   );
 }
