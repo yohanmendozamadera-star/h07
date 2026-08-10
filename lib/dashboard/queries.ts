@@ -5,7 +5,8 @@ import type {
   DashboardSummary,
   DailySalesPoint,
   TechnicianProductivityDetailRow,
-  BreakEvenData,
+  BudgetedBreakEven,
+  RealBreakEven,
 } from "@/lib/dashboard/types";
 
 type OrderRow = { total_amount: number; created_at: string; client_id: string | null };
@@ -112,23 +113,33 @@ type TechnicianOrderRow = {
 
 // Detalle por pedido (no agregado): necesario para mostrar la fecha del
 // servicio y exportar el detalle real, filtrado por el rango desde/hasta
-// (por defecto, solo hoy — ver DateRangeFilter).
+// (por defecto, solo hoy — ver DateRangeFilter). Si la empresa trabaja por
+// comisión, cada fila también trae el % y el valor comisionado.
 export const getTechnicianProductivityDetail = cache(
   async (dateFrom: string, dateTo: string): Promise<TechnicianProductivityDetailRow[]> => {
     const supabase = await createClient();
 
-    const { data } = await supabase
-      .from("orders")
-      .select("id, order_number, total_amount, created_at, technician_id, technician:profiles!orders_technician_id_fkey(full_name)")
-      .eq("status", "completado")
-      .is("deleted_at", null)
-      .not("technician_id", "is", null)
-      .gte("created_at", `${dateFrom}T00:00:00`)
-      .lte("created_at", `${dateTo}T23:59:59`)
-      .order("created_at", { ascending: false })
-      .returns<TechnicianOrderRow[]>();
+    const [ordersRes, settingsRes] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("id, order_number, total_amount, created_at, technician_id, technician:profiles!orders_technician_id_fkey(full_name)")
+        .eq("status", "completado")
+        .is("deleted_at", null)
+        .not("technician_id", "is", null)
+        .gte("created_at", `${dateFrom}T00:00:00`)
+        .lte("created_at", `${dateTo}T23:59:59`)
+        .order("created_at", { ascending: false })
+        .returns<TechnicianOrderRow[]>(),
+      supabase
+        .from("company_settings")
+        .select("commission_enabled, commission_technician_percent")
+        .single<{ commission_enabled: boolean; commission_technician_percent: number | null }>(),
+    ]);
 
-    return (data ?? [])
+    const commissionPercent =
+      settingsRes.data?.commission_enabled ? settingsRes.data.commission_technician_percent : null;
+
+    return (ordersRes.data ?? [])
       .filter((row) => row.technician_id)
       .map((row) => ({
         orderId: row.id,
@@ -137,21 +148,37 @@ export const getTechnicianProductivityDetail = cache(
         technicianId: row.technician_id!,
         technicianName: row.technician?.full_name ?? "—",
         totalAmount: row.total_amount,
+        commissionPercent,
+        commissionAmount: commissionPercent !== null ? (row.total_amount * commissionPercent) / 100 : null,
       }));
   },
 );
 
-// Punto de equilibrio: costo fijo promedio y margen de contribución salen
-// solos de los datos reales de los últimos meses (gastos fijo/variable,
-// compras de inventario, ventas) — no se le pide nada al dueño.
-// "Meses a promediar" se limita a los meses que la empresa realmente lleva
-// activa (mínimo 1, máximo 6) para no diluir el promedio de un negocio nuevo.
-export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenData> => {
+type FixedCostSettings = {
+  budgeted_fixed_cost: number | null;
+  budgeted_fixed_cost_updated_at: string | null;
+  real_fixed_cost: number | null;
+  real_fixed_cost_updated_at: string | null;
+};
+
+// Punto de equilibrio presupuestado: el dueño registra el costo fijo que
+// PRESUPUESTÓ para su negocio (ver RegisterFixedCostDialog). El margen de
+// contribución se sigue calculando solo, promediado sobre los últimos meses
+// reales (mínimo 1, máximo 6, limitado a lo que la empresa lleva activa).
+export const getBudgetedBreakEven = cache(async (empresaId: string): Promise<BudgetedBreakEven> => {
   const supabase = await createClient();
 
-  const { data: company } = await supabase.from("companies").select("created_at").eq("id", empresaId).single();
+  const [companyRes, settingsRes] = await Promise.all([
+    supabase.from("companies").select("created_at").eq("id", empresaId).single(),
+    supabase
+      .from("company_settings")
+      .select("budgeted_fixed_cost, budgeted_fixed_cost_updated_at, real_fixed_cost, real_fixed_cost_updated_at")
+      .eq("empresa_id", empresaId)
+      .single<FixedCostSettings>(),
+  ]);
+
   const today = new Date(`${getTodayBogota()}T00:00:00`);
-  const companyCreatedAt = company?.created_at ? new Date(company.created_at) : today;
+  const companyCreatedAt = companyRes.data?.created_at ? new Date(companyRes.data.created_at) : today;
   const monthsSinceCreated =
     (today.getFullYear() - companyCreatedAt.getFullYear()) * 12 + (today.getMonth() - companyCreatedAt.getMonth()) + 1;
   const monthsUsed = Math.min(6, Math.max(1, monthsSinceCreated));
@@ -159,7 +186,7 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
   const rangeStart = new Date(today.getFullYear(), today.getMonth() - (monthsUsed - 1), 1);
   const rangeStartIso = rangeStart.toISOString().slice(0, 10);
 
-  const [ordersRes, fixedRes, variableRes, purchasesRes] = await Promise.all([
+  const [ordersRes, variableRes, purchasesRes] = await Promise.all([
     supabase
       .from("orders")
       .select("total_amount, created_at")
@@ -168,14 +195,6 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
       .is("deleted_at", null)
       .gte("created_at", `${rangeStartIso}T00:00:00`)
       .returns<{ total_amount: number; created_at: string }[]>(),
-    supabase
-      .from("expenses")
-      .select("amount")
-      .eq("empresa_id", empresaId)
-      .eq("type", "fijo")
-      .is("deleted_at", null)
-      .gte("expense_date", rangeStartIso)
-      .returns<{ amount: number }[]>(),
     supabase
       .from("expenses")
       .select("amount")
@@ -194,17 +213,16 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
 
   const totalSales = (ordersRes.data ?? []).reduce((sum, o) => sum + o.total_amount, 0);
   const orderCount = ordersRes.data?.length ?? 0;
-  const totalFixed = (fixedRes.data ?? []).reduce((sum, e) => sum + e.amount, 0);
   const totalVariable =
     (variableRes.data ?? []).reduce((sum, e) => sum + e.amount, 0) +
     (purchasesRes.data ?? []).reduce((sum, p) => sum + p.total_cost, 0);
 
-  const hasEnoughData = totalSales > 0;
-  const avgFixedCost = totalFixed / monthsUsed;
-  const contributionMarginPercent = hasEnoughData ? ((totalSales - totalVariable) / totalSales) * 100 : null;
+  const hasEnoughSalesData = totalSales > 0;
+  const contributionMarginPercent = hasEnoughSalesData ? ((totalSales - totalVariable) / totalSales) * 100 : null;
+  const fixedCost = settingsRes.data?.budgeted_fixed_cost ?? null;
   const breakEvenAmount =
-    contributionMarginPercent !== null && contributionMarginPercent > 0
-      ? avgFixedCost / (contributionMarginPercent / 100)
+    fixedCost !== null && contributionMarginPercent !== null && contributionMarginPercent > 0
+      ? fixedCost / (contributionMarginPercent / 100)
       : null;
   const avgTicket = orderCount > 0 ? totalSales / orderCount : 0;
   const ordersNeeded =
@@ -225,13 +243,85 @@ export const getBreakEven = cache(async (empresaId: string): Promise<BreakEvenDa
   }
 
   return {
+    fixedCost,
+    fixedCostUpdatedAt: settingsRes.data?.budgeted_fixed_cost_updated_at ?? null,
     monthsUsed,
-    hasEnoughData,
-    avgFixedCost,
+    hasEnoughSalesData,
     contributionMarginPercent,
     breakEvenAmount,
     avgTicket,
     ordersNeeded,
     monthlySales,
+  };
+});
+
+// Punto de equilibrio real: el dueño registra el costo fijo REAL que sabe
+// que paga cada mes, y el margen de contribución se calcula con las ventas
+// y costos del mes EN CURSO (no un promedio), para saber en tiempo real
+// cuánto le falta facturar este mes para cubrir sus costos.
+export const getRealBreakEven = cache(async (empresaId: string): Promise<RealBreakEven> => {
+  const supabase = await createClient();
+  const monthStart = getMonthStartBogota();
+
+  const [settingsRes, ordersRes, variableRes, purchasesRes] = await Promise.all([
+    supabase
+      .from("company_settings")
+      .select("budgeted_fixed_cost, budgeted_fixed_cost_updated_at, real_fixed_cost, real_fixed_cost_updated_at")
+      .eq("empresa_id", empresaId)
+      .single<FixedCostSettings>(),
+    supabase
+      .from("orders")
+      .select("total_amount")
+      .eq("empresa_id", empresaId)
+      .eq("status", "completado")
+      .is("deleted_at", null)
+      .gte("created_at", `${monthStart}T00:00:00`)
+      .returns<{ total_amount: number }[]>(),
+    supabase
+      .from("expenses")
+      .select("amount")
+      .eq("empresa_id", empresaId)
+      .eq("type", "variable")
+      .is("deleted_at", null)
+      .gte("expense_date", monthStart)
+      .returns<{ amount: number }[]>(),
+    supabase
+      .from("purchases")
+      .select("total_cost")
+      .eq("empresa_id", empresaId)
+      .gte("purchase_date", monthStart)
+      .returns<{ total_cost: number }[]>(),
+  ]);
+
+  const currentMonthSales = (ordersRes.data ?? []).reduce((sum, o) => sum + o.total_amount, 0);
+  const currentMonthVariable =
+    (variableRes.data ?? []).reduce((sum, e) => sum + e.amount, 0) +
+    (purchasesRes.data ?? []).reduce((sum, p) => sum + p.total_cost, 0);
+
+  const hasEnoughSalesData = currentMonthSales > 0;
+  const contributionMarginPercent = hasEnoughSalesData
+    ? ((currentMonthSales - currentMonthVariable) / currentMonthSales) * 100
+    : null;
+  const fixedCost = settingsRes.data?.real_fixed_cost ?? null;
+  const breakEvenAmount =
+    fixedCost !== null && contributionMarginPercent !== null && contributionMarginPercent > 0
+      ? fixedCost / (contributionMarginPercent / 100)
+      : null;
+  const stillNeeded = breakEvenAmount !== null ? Math.max(0, breakEvenAmount - currentMonthSales) : null;
+  const progressPercent =
+    breakEvenAmount !== null && breakEvenAmount > 0
+      ? Math.min(100, Math.round((currentMonthSales / breakEvenAmount) * 100))
+      : null;
+
+  return {
+    fixedCost,
+    fixedCostUpdatedAt: settingsRes.data?.real_fixed_cost_updated_at ?? null,
+    currentMonthSales,
+    hasEnoughSalesData,
+    contributionMarginPercent,
+    breakEvenAmount,
+    billedSoFar: currentMonthSales,
+    stillNeeded,
+    progressPercent,
   };
 });

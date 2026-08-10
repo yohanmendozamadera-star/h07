@@ -51,7 +51,16 @@ export const NAV_ITEMS: NavItem[] = [
     permission: "usuarios.manage",
     children: [{ href: "/roles", label: "Roles y Permisos" }],
   },
-  { href: "/configuraciones", label: "Configuraciones", icon: Settings, permission: "configuraciones.manage" },
+  {
+    href: "/configuraciones",
+    label: "Configuraciones",
+    icon: Settings,
+    permission: "configuraciones.manage",
+    children: [
+      { href: "/configuraciones/soporte", label: "Soporte" },
+      { href: "/documentacion", label: "Documentación" },
+    ],
+  },
   { href: "/planes", label: "Planes", icon: CreditCard, permission: "planes.view" },
   { href: "/auditoria", label: "Auditoría", icon: ScrollText, permission: "auditoria.view" },
 ];

@@ -4,15 +4,18 @@ import type { AuditLogRow } from "@/lib/audit/types";
 
 // No hay FK directa audit_logs.user_id -> profiles (apunta a auth.users), así
 // que se resuelve con una segunda consulta y se cruza en memoria — mismo
-// patrón ya usado en panel-plataforma para companies/profiles.
-export const getAuditLogs = cache(async (): Promise<AuditLogRow[]> => {
+// patrón ya usado en panel-plataforma para companies/profiles. Filtrado por
+// rango de fechas (por defecto, solo hoy — ver DateRangeFilter).
+export const getAuditLogs = cache(async (dateFrom: string, dateTo: string): Promise<AuditLogRow[]> => {
   const supabase = await createClient();
 
   const { data: logs } = await supabase
     .from("audit_logs")
     .select("id, user_id, action, module, record_id, old_data, new_data, created_at")
+    .gte("created_at", `${dateFrom}T00:00:00`)
+    .lte("created_at", `${dateTo}T23:59:59`)
     .order("created_at", { ascending: false })
-    .limit(200)
+    .limit(2000)
     .returns<Omit<AuditLogRow, "userName">[]>();
 
   if (!logs || logs.length === 0) return [];

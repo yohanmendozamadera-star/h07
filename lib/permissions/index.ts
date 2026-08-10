@@ -7,6 +7,7 @@ type ProfileWithRole = {
   empresa_id: string;
   full_name: string;
   email: string;
+  avatar_url: string | null;
   is_active: boolean;
   role: {
     code: string;
@@ -20,6 +21,7 @@ export type CurrentUser = {
   empresaId: string;
   fullName: string;
   email: string;
+  avatarUrl: string | null;
   roleCode: string;
   roleName: string;
   permissions: PermissionCode[];
@@ -43,7 +45,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "empresa_id, full_name, email, is_active, role:roles(code, name, role_permissions(permission:permissions(code)))",
+      "empresa_id, full_name, email, avatar_url, is_active, role:roles(code, name, role_permissions(permission:permissions(code)))",
     )
     .eq("id", userId)
     .single<ProfileWithRole>();
@@ -59,6 +61,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     empresaId: data.empresa_id,
     fullName: data.full_name,
     email: data.email,
+    avatarUrl: data.avatar_url,
     roleCode: data.role.code,
     roleName: data.role.name,
     permissions,

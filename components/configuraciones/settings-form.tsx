@@ -29,6 +29,8 @@ function toFormValues(settings: CompanySettings): CompanySettingsFormValues {
     requireTechnicianOnInvoice: settings.require_technician_on_invoice,
     showNumericKeypad: settings.show_numeric_keypad,
     parkingGraceMinutes: settings.parking_grace_minutes,
+    commissionEnabled: settings.commission_enabled,
+    commissionTechnicianPercent: settings.commission_technician_percent,
   };
 }
 
@@ -102,6 +104,41 @@ export function SettingsForm({ settings }: { settings: CompanySettings }) {
             />
             {errors.parkingGraceMinutes && (
               <p className="text-sm text-destructive">{errors.parkingGraceMinutes.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-3 rounded-md border p-3">
+            <label className="flex items-center gap-3">
+              <Checkbox
+                checked={Boolean(values.commissionEnabled)}
+                onCheckedChange={(checked) => setValue("commissionEnabled", checked)}
+              />
+              <span className="text-sm font-medium">Trabajo por comisión</span>
+            </label>
+            <p className="text-xs text-muted-foreground">
+              Actívalo si le pagas a cada técnico un porcentaje de lo que factura (ej: 60% para el lavadero, 40%
+              para el técnico). El campo de abajo es el porcentaje que se lleva el TÉCNICO, no el del negocio.
+            </p>
+
+            {values.commissionEnabled && (
+              <div className="max-w-xs space-y-1.5">
+                <Label htmlFor="commissionTechnicianPercent">% de comisión del técnico</Label>
+                <Input
+                  id="commissionTechnicianPercent"
+                  type="number"
+                  min={0}
+                  max={100}
+                  step="1"
+                  placeholder="Ej: 40"
+                  {...register("commissionTechnicianPercent")}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ejemplo: si tú te quedas el 60% y el técnico el 40%, aquí escribes <strong>40</strong>.
+                </p>
+                {errors.commissionTechnicianPercent && (
+                  <p className="text-sm text-destructive">{errors.commissionTechnicianPercent.message}</p>
+                )}
+              </div>
             )}
           </div>
 

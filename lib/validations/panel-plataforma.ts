@@ -23,6 +23,17 @@ export const platformConfigSchema = z.object({
 
 export type PlatformConfigValues = z.input<typeof platformConfigSchema>;
 
+// Solo dígitos: indicativo de país + número, sin "+", espacios ni guiones
+// (formato que exige el link wa.me).
+export const supportWhatsappSchema = z.object({
+  phoneNumber: z
+    .string()
+    .trim()
+    .regex(/^\d{8,15}$/, "Solo dígitos, con indicativo de país, sin +, espacios ni guiones"),
+});
+
+export type SupportWhatsappValues = z.input<typeof supportWhatsappSchema>;
+
 export const platformSetPlanSchema = z.object({
   empresaId: z.string().uuid(),
   planCode: z.enum(["free", "h7"]),

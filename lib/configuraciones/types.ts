@@ -6,6 +6,8 @@ export type CompanySettings = {
   require_technician_on_invoice: boolean;
   show_numeric_keypad: boolean;
   parking_grace_minutes: number;
+  commission_enabled: boolean;
+  commission_technician_percent: number | null;
 };
 
 export type SharedCatalogRow = {

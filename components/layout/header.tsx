@@ -8,7 +8,7 @@ import { Menu, PanelLeftClose, PanelLeftOpen, LogOut, Loader2, ShieldCheck, Sun,
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function initials(name: string) {
   return name
@@ -62,6 +62,7 @@ function ThemeToggle() {
 export function Header({
   fullName,
   roleName,
+  avatarUrl,
   isPlatformAdmin,
   collapsed,
   onToggleCollapse,
@@ -69,6 +70,7 @@ export function Header({
 }: {
   fullName: string;
   roleName: string;
+  avatarUrl: string | null;
   isPlatformAdmin: boolean;
   collapsed: boolean;
   onToggleCollapse: () => void;
@@ -123,6 +125,7 @@ export function Header({
 
         <Link href="/mi-perfil" className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-muted" title="Mi perfil">
           <Avatar className="size-7">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt={fullName} />}
             <AvatarFallback className="text-xs">{initials(fullName) || "U"}</AvatarFallback>
           </Avatar>
           <span className="hidden text-sm font-medium sm:inline">{fullName}</span>

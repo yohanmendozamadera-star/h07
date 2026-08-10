@@ -5,47 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { AuditAction, AuditLogRow } from "@/lib/audit/types";
+import { ACTION_LABELS, MODULE_LABELS, buildDiffRows } from "@/lib/audit/labels";
 import { formatDateTime } from "@/lib/format";
 
-const ACTION_LABELS: Record<AuditAction, string> = {
-  create: "Creó",
-  update: "Actualizó",
-  delete: "Eliminó",
-  login: "Inició sesión",
-  approve: "Aprobó",
-  reject: "Rechazó",
-};
-
-const ACTION_VARIANTS: Record<AuditAction, "secondary" | "outline" | "destructive"> = {
-  create: "secondary",
+const ACTION_VARIANTS: Record<AuditAction, "success" | "outline" | "destructive"> = {
+  create: "success",
   update: "outline",
   delete: "destructive",
   login: "outline",
-  approve: "secondary",
+  approve: "success",
   reject: "destructive",
-};
-
-const MODULE_LABELS: Record<string, string> = {
-  clients: "Clientes",
-  catalog_items: "Servicios/Productos",
-  parking_rates: "Tarifas de parqueadero",
-  orders: "Pedidos",
-  order_items: "Líneas de pedido",
-  parking_movements: "Movimientos de parqueadero",
-  purchases: "Compras",
-  shrinkages: "Mermas",
-  expenses: "Gastos",
-  company_subscriptions: "Suscripción",
-  invoices: "Facturas",
-  payments: "Pagos",
-  payment_links: "Links de pago",
 };
 
 export function AuditLogTable({ logs }: { logs: AuditLogRow[] }) {
   const [selected, setSelected] = useState<AuditLogRow | null>(null);
+  const diffRows = selected ? buildDiffRows(selected.old_data, selected.new_data) : [];
 
   if (logs.length === 0) {
-    return <p className="text-sm text-muted-foreground">Todavía no hay registros de auditoría.</p>;
+    return <p className="text-sm text-muted-foreground">Todavía no hay registros de auditoría en este rango de fechas.</p>;
   }
 
   return (
@@ -90,17 +67,29 @@ export function AuditLogTable({ logs }: { logs: AuditLogRow[] }) {
               {selected && ACTION_LABELS[selected.action]} — {selected && (MODULE_LABELS[selected.module] ?? selected.module)}
             </DialogTitle>
           </DialogHeader>
-          <div className="max-h-96 space-y-3 overflow-y-auto text-xs">
-            {selected?.old_data && (
-              <div>
-                <p className="mb-1 font-medium text-muted-foreground">Antes</p>
-                <pre className="overflow-x-auto rounded-md bg-muted p-2">{JSON.stringify(selected.old_data, null, 2)}</pre>
-              </div>
-            )}
-            {selected?.new_data && (
-              <div>
-                <p className="mb-1 font-medium text-muted-foreground">Después</p>
-                <pre className="overflow-x-auto rounded-md bg-muted p-2">{JSON.stringify(selected.new_data, null, 2)}</pre>
+          <div className="max-h-96 overflow-y-auto">
+            {diffRows.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin cambios de campos para mostrar.</p>
+            ) : (
+              <div className="overflow-x-auto rounded-md border">
+                <table className="w-full text-sm">
+                  <thead className="bg-blue-50 text-left text-xs text-blue-900 dark:bg-blue-950/40 dark:text-blue-100">
+                    <tr>
+                      <th className="p-2 font-medium">Campo</th>
+                      <th className="p-2 font-medium">Antes</th>
+                      <th className="p-2 font-medium">Después</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {diffRows.map((row) => (
+                      <tr key={row.field} className="border-t align-top">
+                        <td className="p-2 font-medium">{row.field}</td>
+                        <td className="p-2 break-all text-muted-foreground">{row.before}</td>
+                        <td className="p-2 break-all">{row.after}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

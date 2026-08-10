@@ -29,6 +29,8 @@ export async function updateCompanySettingsAction(input: unknown): Promise<Actio
       require_technician_on_invoice: parsed.data.requireTechnicianOnInvoice,
       show_numeric_keypad: parsed.data.showNumericKeypad,
       parking_grace_minutes: parsed.data.parkingGraceMinutes,
+      commission_enabled: parsed.data.commissionEnabled,
+      commission_technician_percent: parsed.data.commissionEnabled ? parsed.data.commissionTechnicianPercent : null,
     })
     .eq("empresa_id", user.empresaId);
 
@@ -36,6 +38,7 @@ export async function updateCompanySettingsAction(input: unknown): Promise<Actio
 
   revalidatePath("/configuraciones");
   revalidatePath("/servicios");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CatalogItemFormDialog } from "@/components/servicios/catalog-item-form-dialog";
 import { ParkingRateFormDialog } from "@/components/servicios/parking-rate-form-dialog";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toggleCatalogItemActive, toggleParkingRateActive } from "@/app/(app)/servicios/actions";
 import { CHANNEL_LABELS, type CatalogChannel, type CatalogItem } from "@/lib/servicios/types";
 import type { ParkingRate } from "@/lib/parqueadero/types";
@@ -26,6 +27,8 @@ export function ServiciosClient({
   canEdit: boolean;
 }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
+  const [confirmItem, setConfirmItem] = useState<CatalogItem | null>(null);
+  const [confirmRate, setConfirmRate] = useState<ParkingRate | null>(null);
 
   if (enabledChannels.length === 0 && !parqueaderoEnabled) {
     return (
@@ -39,6 +42,7 @@ export function ServiciosClient({
     setPendingId(item.id);
     const result = await toggleCatalogItemActive(item.id, !item.is_active);
     setPendingId(null);
+    setConfirmItem(null);
     if (!result.success) {
       toast.error("No se pudo actualizar", { description: result.message });
       return;
@@ -50,6 +54,7 @@ export function ServiciosClient({
     setPendingId(rate.id);
     const result = await toggleParkingRateActive(rate.id, !rate.is_active);
     setPendingId(null);
+    setConfirmRate(null);
     if (!result.success) {
       toast.error("No se pudo actualizar", { description: result.message });
       return;
@@ -112,7 +117,7 @@ export function ServiciosClient({
                                 variant="ghost"
                                 size="sm"
                                 disabled={pendingId === item.id}
-                                onClick={() => handleToggleItem(item)}
+                                onClick={() => setConfirmItem(item)}
                               >
                                 <Badge variant={item.is_active ? "success" : "outline"}>
                                   {item.is_active ? "Activo" : "Inactivo"}
@@ -169,7 +174,7 @@ export function ServiciosClient({
                               variant="ghost"
                               size="sm"
                               disabled={pendingId === rate.id}
-                              onClick={() => handleToggleRate(rate)}
+                              onClick={() => setConfirmRate(rate)}
                             >
                               <Badge variant={rate.is_active ? "success" : "outline"}>
                                 {rate.is_active ? "Activo" : "Inactivo"}
@@ -195,6 +200,34 @@ export function ServiciosClient({
           </TabsContent>
         )}
       </Tabs>
+
+      <ConfirmDialog
+        open={Boolean(confirmItem)}
+        onOpenChange={(open) => !open && setConfirmItem(null)}
+        title={confirmItem?.is_active ? "¿Inactivar este servicio?" : "¿Activar este servicio?"}
+        description={
+          confirmItem?.is_active
+            ? `"${confirmItem?.name}" dejará de estar disponible para tomar pedidos nuevos.`
+            : `"${confirmItem?.name}" volverá a estar disponible para tomar pedidos nuevos.`
+        }
+        confirmLabel={confirmItem?.is_active ? "Inactivar" : "Activar"}
+        pending={pendingId === confirmItem?.id}
+        onConfirm={() => confirmItem && handleToggleItem(confirmItem)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(confirmRate)}
+        onOpenChange={(open) => !open && setConfirmRate(null)}
+        title={confirmRate?.is_active ? "¿Inactivar esta tarifa?" : "¿Activar esta tarifa?"}
+        description={
+          confirmRate?.is_active
+            ? `"${confirmRate?.name}" dejará de estar disponible para cobrar parqueadero.`
+            : `"${confirmRate?.name}" volverá a estar disponible para cobrar parqueadero.`
+        }
+        confirmLabel={confirmRate?.is_active ? "Inactivar" : "Activar"}
+        pending={pendingId === confirmRate?.id}
+        onConfirm={() => confirmRate && handleToggleRate(confirmRate)}
+      />
     </div>
   );
 }

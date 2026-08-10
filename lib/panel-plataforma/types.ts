@@ -36,6 +36,7 @@ export type PlatformBanner = {
 
 export type PlatformConfig = {
   whatsapp_notifications_enabled: boolean;
+  support_whatsapp_number: string | null;
 };
 
 export type PaymentLinkRow = {

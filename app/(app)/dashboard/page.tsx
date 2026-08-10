@@ -2,7 +2,8 @@ import { getCurrentUser, can } from "@/lib/permissions";
 import {
   getDashboardSummary,
   getDailySales,
-  getBreakEven,
+  getBudgetedBreakEven,
+  getRealBreakEven,
   getTechnicianProductivityDetail,
 } from "@/lib/dashboard/queries";
 import { getTodayBogota } from "@/lib/format";
@@ -10,7 +11,7 @@ import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { DailySalesChart } from "@/components/dashboard/daily-sales-chart";
-import { BreakEvenCard } from "@/components/dashboard/break-even-card";
+import { BudgetedBreakEvenCard, RealBreakEvenCard } from "@/components/dashboard/break-even-card";
 import { ProductivityTable } from "@/components/dashboard/productivity-table";
 
 export default async function DashboardPage({
@@ -30,10 +31,11 @@ export default async function DashboardPage({
   const dateFrom = params.from ?? today;
   const dateTo = params.to ?? today;
 
-  const [summary, dailySales, breakEven, productivity] = await Promise.all([
+  const [summary, dailySales, budgetedBreakEven, realBreakEven, productivity] = await Promise.all([
     getDashboardSummary(),
     getDailySales(),
-    getBreakEven(user!.empresaId),
+    getBudgetedBreakEven(user!.empresaId),
+    getRealBreakEven(user!.empresaId),
     getTechnicianProductivityDetail(dateFrom, dateTo),
   ]);
 
@@ -62,8 +64,9 @@ export default async function DashboardPage({
           />
         </TabsContent>
 
-        <TabsContent value="punto-equilibrio" className="pt-3">
-          <BreakEvenCard data={breakEven} salesMonth={summary.salesMonth} />
+        <TabsContent value="punto-equilibrio" className="space-y-4 pt-3">
+          <BudgetedBreakEvenCard data={budgetedBreakEven} />
+          <RealBreakEvenCard data={realBreakEven} />
         </TabsContent>
       </Tabs>
     </div>

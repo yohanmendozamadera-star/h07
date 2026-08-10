@@ -84,11 +84,11 @@ export const getPlatformConfig = cache(async (): Promise<PlatformConfig> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("platform_config")
-    .select("whatsapp_notifications_enabled")
+    .select("whatsapp_notifications_enabled, support_whatsapp_number")
     .eq("id", 1)
     .maybeSingle();
 
-  return data ?? { whatsapp_notifications_enabled: false };
+  return data ?? { whatsapp_notifications_enabled: false, support_whatsapp_number: null };
 });
 
 export const getPaymentLinks = cache(async (): Promise<PaymentLinkRow[]> => {

@@ -30,6 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <AppShell
       fullName={user.fullName}
       roleName={user.roleName}
+      avatarUrl={user.avatarUrl}
       permissions={user.permissions}
       isPlatformAdmin={Boolean(platformAdmin)}
       hasActivePlan={planActive}

@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   const to = searchParams.get("to") ?? today;
 
   const rows = await getTechnicianProductivityDetail(from, to);
+  const commissionEnabled = rows.some((row) => row.commissionPercent !== null);
 
   return buildExcelResponse(
     [
@@ -27,12 +28,24 @@ export async function GET(request: NextRequest) {
           { header: "Técnico", key: "tecnico", width: 24 },
           { header: "Pedido", key: "pedido", width: 20 },
           { header: "Total", key: "total", width: 14 },
+          ...(commissionEnabled
+            ? [
+                { header: "% Comisión", key: "comisionPercent", width: 14 },
+                { header: "Valor comisionado", key: "comisionValor", width: 16 },
+              ]
+            : []),
         ],
         rows: rows.map((row) => ({
           fecha: formatDateTime(row.date),
           tecnico: row.technicianName,
           pedido: row.orderNumber,
           total: row.totalAmount,
+          ...(commissionEnabled
+            ? {
+                comisionPercent: row.commissionPercent ?? "",
+                comisionValor: row.commissionAmount ?? "",
+              }
+            : {}),
         })),
       },
     ],

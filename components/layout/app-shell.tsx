@@ -8,6 +8,7 @@ import { SidebarNav } from "@/components/layout/sidebar-nav";
 export function AppShell({
   fullName,
   roleName,
+  avatarUrl,
   permissions,
   isPlatformAdmin,
   hasActivePlan,
@@ -15,6 +16,7 @@ export function AppShell({
 }: {
   fullName: string;
   roleName: string;
+  avatarUrl: string | null;
   permissions: string[];
   isPlatformAdmin: boolean;
   hasActivePlan: boolean;
@@ -62,6 +64,7 @@ export function AppShell({
         <Header
           fullName={fullName}
           roleName={roleName}
+          avatarUrl={avatarUrl}
           isPlatformAdmin={isPlatformAdmin}
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed((value) => !value)}

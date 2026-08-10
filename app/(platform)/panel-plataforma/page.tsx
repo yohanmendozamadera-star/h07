@@ -12,6 +12,7 @@ import { InvoicesTable } from "@/components/panel-plataforma/invoices-table";
 import { PaymentsTable } from "@/components/panel-plataforma/payments-table";
 import { BannerForm } from "@/components/panel-plataforma/banner-form";
 import { WhatsappConfigForm } from "@/components/panel-plataforma/whatsapp-config-form";
+import { SupportWhatsappForm } from "@/components/panel-plataforma/support-whatsapp-form";
 import { PaymentLinksManager } from "@/components/panel-plataforma/payment-links-manager";
 
 export default async function PanelPlataformaPage() {
@@ -51,8 +52,9 @@ export default async function PanelPlataformaPage() {
         <BannerForm banner={banner} />
       </TabsContent>
 
-      <TabsContent value="notificaciones" className="pt-3">
+      <TabsContent value="notificaciones" className="space-y-4 pt-3">
         <WhatsappConfigForm config={config} />
+        <SupportWhatsappForm config={config} />
       </TabsContent>
 
       <TabsContent value="links" className="pt-3">
