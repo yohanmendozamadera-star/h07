@@ -4,12 +4,12 @@ import { formatCurrency } from "@/lib/format";
 
 function SummaryCard({ label, value, description }: { label: string; value: string; description?: string }) {
   return (
-    <Card>
+    <Card className="bg-blue-50 ring-blue-200 dark:bg-blue-950/30 dark:ring-blue-900">
       <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-2xl">{value}</CardTitle>
+        <CardDescription className="text-blue-700 dark:text-blue-300">{label}</CardDescription>
+        <CardTitle className="text-2xl text-blue-950 dark:text-blue-50">{value}</CardTitle>
       </CardHeader>
-      {description && <CardContent className="pt-0 text-xs text-muted-foreground">{description}</CardContent>}
+      {description && <CardContent className="pt-0 text-xs text-blue-700/70 dark:text-blue-300/70">{description}</CardContent>}
     </Card>
   );
 }

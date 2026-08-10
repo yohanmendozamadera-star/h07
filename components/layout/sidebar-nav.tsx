@@ -42,8 +42,8 @@ export function SidebarNav({
     });
   };
 
-  const activeClass = "bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-100";
-  const inactiveClass = "text-muted-foreground hover:bg-muted hover:text-foreground";
+  const activeClass = "bg-blue-100 text-blue-900";
+  const inactiveClass = "text-blue-100/70 hover:bg-blue-900/60 hover:text-white";
 
   return (
     <nav className="flex flex-col gap-1 p-2">
@@ -57,7 +57,7 @@ export function SidebarNav({
 
           return (
             <div key={item.href}>
-              <div className={cn("flex items-center gap-1 rounded-md text-sm font-medium transition-colors", ownActive && activeClass, !ownActive && (hasActiveChild ? "text-foreground" : inactiveClass))}>
+              <div className={cn("flex items-center gap-1 rounded-md text-sm font-medium transition-colors", ownActive && activeClass, !ownActive && (hasActiveChild ? "text-white" : inactiveClass))}>
                 <Link
                   href={item.href}
                   onClick={onNavigate}
@@ -72,14 +72,14 @@ export function SidebarNav({
                     type="button"
                     onClick={() => toggle(item.href)}
                     aria-label={isExpanded ? "Contraer" : "Expandir"}
-                    className={cn("rounded-md p-2", !ownActive && "hover:bg-muted hover:text-foreground")}
+                    className={cn("rounded-md p-2", !ownActive && "hover:bg-blue-900/60 hover:text-white")}
                   >
                     {isExpanded ? <ChevronDown className="size-4 shrink-0" /> : <ChevronRight className="size-4 shrink-0" />}
                   </button>
                 )}
               </div>
               {!collapsed && isExpanded && (
-                <div className="ml-4 flex flex-col gap-1 border-l pl-3">
+                <div className="ml-4 flex flex-col gap-1 border-l border-blue-900 pl-3">
                   {item.children.map((child) => {
                     const childActive = pathname.startsWith(child.href);
                     return (

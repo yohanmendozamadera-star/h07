@@ -5,10 +5,10 @@ import { formatCurrency } from "@/lib/format";
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <Card>
+    <Card className="bg-blue-50 ring-blue-200 dark:bg-blue-950/30 dark:ring-blue-900">
       <CardContent className="p-3">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-lg font-semibold tracking-tight">{value}</p>
+        <p className="text-xs text-blue-700 dark:text-blue-300">{label}</p>
+        <p className="text-lg font-semibold tracking-tight text-blue-950 dark:text-blue-50">{value}</p>
       </CardContent>
     </Card>
   );

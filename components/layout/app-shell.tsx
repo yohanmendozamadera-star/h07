@@ -27,11 +27,11 @@ export function AppShell({
     <div className="flex h-screen overflow-hidden bg-muted/30">
       <aside
         className={cn(
-          "hidden shrink-0 border-r bg-background transition-[width] duration-200 md:flex md:flex-col",
+          "hidden shrink-0 bg-blue-950 transition-[width] duration-200 md:flex md:flex-col",
           collapsed ? "w-16" : "w-64",
         )}
       >
-        <div className="flex h-14 items-center justify-center border-b px-3 font-semibold tracking-tight">
+        <div className="flex h-14 items-center justify-center border-b border-blue-900 px-3 font-semibold tracking-tight text-white">
           {collapsed ? "H7" : "H07"}
         </div>
         <SidebarNav permissions={permissions} hasActivePlan={hasActivePlan} collapsed={collapsed} />
@@ -45,8 +45,10 @@ export function AppShell({
             className="absolute inset-0 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 flex w-64 flex-col border-r bg-background shadow-lg">
-            <div className="flex h-14 items-center border-b px-4 font-semibold tracking-tight">H07</div>
+          <div className="absolute inset-y-0 left-0 flex w-64 flex-col bg-blue-950 shadow-lg">
+            <div className="flex h-14 items-center border-b border-blue-900 px-4 font-semibold tracking-tight text-white">
+              H07
+            </div>
             <SidebarNav
               permissions={permissions}
               hasActivePlan={hasActivePlan}
