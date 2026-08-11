@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BreakEvenChart } from "@/components/dashboard/break-even-chart";
 import { RegisterFixedCostDialog } from "@/components/dashboard/register-fixed-cost-dialog";
@@ -93,6 +94,13 @@ export function BudgetedBreakEvenCard({ data }: { data: BudgetedBreakEven }) {
           )}
         </p>
         {registerButton}
+        <p className="text-xs text-muted-foreground">
+          Este margen sale de lo que registres en{" "}
+          <Link href="/gastos" className="underline underline-offset-2">
+            Gastos
+          </Link>{" "}
+          como costo variable — entre más completo lo tengas, más real será este número.
+        </p>
         <BreakEvenChart monthlySales={data.monthlySales} breakEvenAmount={data.breakEvenAmount} />
       </CardContent>
     </Card>

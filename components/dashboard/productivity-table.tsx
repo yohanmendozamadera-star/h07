@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangeFilter } from "@/components/shared/date-range-filter";
 import { ExportButton } from "@/components/shared/export-button";
@@ -78,6 +79,16 @@ export function ProductivityTable({
                 </tbody>
               </table>
             </div>
+          )}
+          {commissionEnabled && summary.length > 0 && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              La comisión todavía no se ha pagado — cuando se la pagues a cada técnico, regístrala en{" "}
+              <Link href="/gastos" className="underline underline-offset-2">
+                Gastos
+              </Link>{" "}
+              como costo variable (no fijo), por el valor real que pagaste. Así queda reflejada en el margen que
+              usa Punto de equilibrio.
+            </p>
           )}
         </CardContent>
       </Card>

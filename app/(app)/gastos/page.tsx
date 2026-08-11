@@ -40,7 +40,13 @@ export default async function GastosPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">Gastos</h1>
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Gastos</h1>
+          <p className="text-sm text-muted-foreground">
+            Registra también tus costos variables (insumos, materiales, comisiones) aunque sea un estimado
+            mensual — Punto de equilibrio, en el Dashboard, calcula tu margen a partir de lo que registres aquí.
+          </p>
+        </div>
         {canCreate && <ExpenseFormDialog categories={activeCategories} suppliers={activeSuppliers} />}
       </div>
 

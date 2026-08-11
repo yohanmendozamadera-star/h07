@@ -52,8 +52,11 @@ export function ExpenseFormDialog({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<ExpenseFormValues>({ resolver: zodResolver(expenseFormSchema), defaultValues: toFormValues(expense) });
+
+  const type = watch("type");
 
   const onOpenChange = (value: boolean) => {
     setOpen(value);
@@ -111,6 +114,18 @@ export function ExpenseFormDialog({
               <option value="fijo">Costo fijo</option>
               <option value="variable">Costo variable</option>
             </select>
+            {type === "fijo" ? (
+              <p className="text-xs text-muted-foreground">
+                Se repite todos los meses más o menos igual, pase lo que pase con tus ventas: arriendo, nómina fija,
+                servicios públicos.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Depende de cuánto vendes: insumos, jabón, materiales, comisiones. Este número es el que usa Punto de
+                equilibrio (en el Dashboard) para calcular tu margen — entre más completo lo tengas, más real será
+                ese cálculo.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
