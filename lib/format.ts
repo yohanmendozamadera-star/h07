@@ -4,10 +4,14 @@ const currencyFormatter = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
+// Sin `timeZone`, Intl usa la zona horaria del servidor (en producción,
+// UTC) — un timestamp guardado a las 8:34pm hora Colombia se mostraba como
+// la 1:34am del día siguiente. Forzamos America/Bogota explícitamente.
 const dateFormatter = new Intl.DateTimeFormat("es-CO", {
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
+  timeZone: "America/Bogota",
 });
 
 const dateTimeFormatter = new Intl.DateTimeFormat("es-CO", {
@@ -16,20 +20,35 @@ const dateTimeFormatter = new Intl.DateTimeFormat("es-CO", {
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
+  timeZone: "America/Bogota",
+});
+
+// Para columnas `date` puras (sin hora, ej. due_date, expense_date): no
+// representan un instante real, solo un día de calendario, así que se
+// muestran tal cual se guardaron — sin convertir a ningún huso horario
+// (por eso usa timeZone: "UTC" sobre una fecha construida en UTC, en vez
+// del formatter de arriba que sí convierte a hora de Colombia).
+const plainDateFormatter = new Intl.DateTimeFormat("es-CO", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
 });
 
 export function formatCurrency(value: number | null | undefined) {
   return currencyFormatter.format(value ?? 0);
 }
 
-// Para columnas `date` (sin hora, ej. due_date): "AAAA-MM-DD" sin sufijo se
-// interpreta como medianoche UTC, y en un huso horario negativo se muestra
-// un día antes. Forzamos T00:00:00 (hora local) para evitar ese corrimiento.
 export function formatDate(value: string | null | undefined) {
   if (!value) return "—";
-  const date = new Date(value.includes("T") ? value : `${value}T00:00:00`);
+  if (value.includes("T")) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+    return dateFormatter.format(date);
+  }
+  const date = new Date(`${value}T00:00:00Z`);
   if (Number.isNaN(date.getTime())) return "—";
-  return dateFormatter.format(date);
+  return plainDateFormatter.format(date);
 }
 
 export function formatDateTime(value: string | null | undefined) {
