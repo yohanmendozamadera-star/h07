@@ -7,5 +7,9 @@ export default async function OnboardingLayout({ children }: { children: React.R
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  return <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">{children}</div>;
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-blue-50 p-4 dark:bg-blue-950/30">
+      {children}
+    </div>
+  );
 }

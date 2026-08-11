@@ -7,6 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -82,7 +83,16 @@ export default function RegistroPage() {
             configuración inicial de tu negocio.
           </p>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <div className="space-y-4">
+            <GoogleSignInButton next="/onboarding" />
+
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground">o regístrate con tu correo</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="space-y-2">
               <Label htmlFor="companyName">Nombre del negocio</Label>
               <Input id="companyName" autoComplete="organization" {...register("companyName")} />
@@ -135,7 +145,8 @@ export default function RegistroPage() {
             <a href="/login" className="block text-center text-sm text-muted-foreground hover:underline">
               ¿Ya tienes cuenta? Inicia sesión
             </a>
-          </form>
+            </form>
+          </div>
         )}
       </CardContent>
     </Card>

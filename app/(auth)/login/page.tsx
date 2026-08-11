@@ -8,6 +8,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -85,6 +86,14 @@ function LoginForm() {
             {submitting && <Loader2 className="size-4 animate-spin" />}
             Ingresar
           </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">o</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <GoogleSignInButton next={searchParams.get("redirectTo") || "/dashboard"} />
 
           <a href="/registro" className="block text-center text-sm text-muted-foreground hover:underline">
             ¿No tienes cuenta? Regístrate gratis

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CatalogItemFormDialog } from "@/components/servicios/catalog-item-form-dialog";
 import { ParkingRateFormDialog } from "@/components/servicios/parking-rate-form-dialog";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { ImportServicesDialog } from "@/components/servicios/import-services-dialog";
 import { toggleCatalogItemActive, toggleParkingRateActive } from "@/app/(app)/servicios/actions";
 import { CHANNEL_LABELS, type CatalogChannel, type CatalogItem } from "@/lib/servicios/types";
 import type { ParkingRate } from "@/lib/parqueadero/types";
@@ -66,7 +67,10 @@ export function ServiciosClient({
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">Servicios</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold tracking-tight">Servicios</h1>
+        {canEdit && <ImportServicesDialog />}
+      </div>
 
       <Tabs defaultValue={firstTab}>
         <TabsList>

@@ -77,18 +77,11 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
     });
   };
 
+  // Este paso se puede omitir por completo: si no se escribió nada, las
+  // acciones de guardado no insertan filas vacías (ver saveCatalogItemsAction
+  // y saveParkingRatesAction), así que "Continuar" avanza igual sin bloquear
+  // — el dueño puede cargar sus servicios después desde Servicios.
   const handleCatalogNext = () => {
-    for (const channel of activeChannels) {
-      if (catalogDrafts[channel].every((row) => row.name.trim().length === 0)) {
-        toast.error(`Agrega al menos un servicio de ${CHANNEL_LABELS[channel]}`);
-        return;
-      }
-    }
-    if (modules.parqueaderoEnabled && parkingDrafts.every((row) => row.name.trim().length === 0)) {
-      toast.error("Agrega al menos una tarifa de parqueadero");
-      return;
-    }
-
     startTransition(async () => {
       try {
         const itemsToSave = activeChannels.flatMap((channel) =>
@@ -119,7 +112,7 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
   };
 
   return (
-    <Card>
+    <Card className="ring-blue-200 dark:ring-blue-900">
       <CardHeader>
         <div className="flex items-center gap-2">
           {STEPS.map((label, index) => (
@@ -127,13 +120,13 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
               <div
                 className={cn(
                   "flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium",
-                  index <= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                  index <= step ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-900 dark:bg-blue-950/40 dark:text-blue-100",
                 )}
               >
                 {index + 1}
               </div>
               {index < STEPS.length - 1 && (
-                <div className={cn("h-px flex-1", index < step ? "bg-primary" : "bg-muted")} />
+                <div className={cn("h-px flex-1", index < step ? "bg-blue-600" : "bg-blue-100 dark:bg-blue-900")} />
               )}
             </div>
           ))}
@@ -181,6 +174,11 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
 
         {step === 2 && (
           <div className="space-y-6">
+            <p className="rounded-md bg-blue-50 p-3 text-sm text-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
+              Este paso es opcional: puedes omitirlo y agregar tus servicios y tarifas más adelante desde{" "}
+              <strong>Servicios</strong> (incluso puedes importarlos desde un Excel). Dale &quot;Continuar&quot;
+              sin llenar nada si prefieres hacerlo después.
+            </p>
             {activeChannels.map((channel) => (
               <div key={channel} className="space-y-2">
                 <Label>{CHANNEL_LABELS[channel]}</Label>
@@ -318,7 +316,10 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
               </Button>
               <Button type="button" onClick={handleCatalogNext} disabled={pending} className="flex-1">
                 {pending && <Loader2 className="size-4 animate-spin" />}
-                Continuar
+                {activeChannels.every((channel) => catalogDrafts[channel].every((row) => !row.name.trim())) &&
+                (!modules.parqueaderoEnabled || parkingDrafts.every((row) => !row.name.trim()))
+                  ? "Omitir por ahora"
+                  : "Continuar"}
               </Button>
             </div>
           </div>
