@@ -83,5 +83,9 @@ export async function completeOnboardingAction() {
 
   if (error) throw new Error(error.message);
 
+  // redirect() aquí (no router.push del lado del cliente) es lo que hace que
+  // Next.js invalide el caché de la ruta protegida — con router.push del
+  // cliente, el layout de (app) a veces seguía viendo el estado de onboarding
+  // desde el caché del navegador y devolvía otra vez para acá.
   redirect("/dashboard");
 }

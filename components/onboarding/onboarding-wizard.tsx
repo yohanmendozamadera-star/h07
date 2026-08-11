@@ -106,6 +106,11 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
       try {
         await completeOnboardingAction();
       } catch (error) {
+        // completeOnboardingAction termina con redirect("/dashboard"), que
+        // Next.js implementa lanzando un error especial (digest
+        // "NEXT_REDIRECT") para completar la navegación — no es un error
+        // real, así que lo dejamos pasar en vez de mostrarlo como falla.
+        if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw error;
         toast.error("No fue posible finalizar la configuración", { description: (error as Error).message });
       }
     });
