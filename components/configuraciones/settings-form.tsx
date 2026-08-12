@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const MODULE_TOGGLES: { key: keyof CompanySettingsFormValues; label: string }[] = [
-  { key: "lavanderiaEnabled", label: "Lavandería" },
+  { key: "lavanderiaEnabled", label: "Autolavado" },
   { key: "inventarioEnabled", label: "Productos" },
   { key: "tallerEnabled", label: "Taller" },
   { key: "parqueaderoEnabled", label: "Parqueadero" },

@@ -43,7 +43,7 @@ export default async function PedidosHistoricosPage({
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Pedidos Históricos</h1>
         <p className="text-sm text-muted-foreground">
-          Registro completo de pedidos de Lavandería, Productos y Taller.
+          Registro completo de pedidos de Autolavado, Productos y Taller.
         </p>
       </div>
 

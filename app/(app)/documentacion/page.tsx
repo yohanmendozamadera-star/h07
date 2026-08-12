@@ -10,7 +10,7 @@ const SECTIONS: Section[] = [
       <>
         <p>
           Al crear tu cuenta pasas por un asistente de bienvenida donde activas los módulos de negocio que usas
-          (Lavandería, Productos, Taller, Parqueadero) y cargas tus primeros servicios y precios. Puedes activar o
+          (Autolavado, Productos, Taller, Parqueadero) y cargas tus primeros servicios y precios. Puedes activar o
           desactivar módulos en cualquier momento desde <strong>Configuraciones → Módulos y preferencias</strong>.
         </p>
         <p>
@@ -27,11 +27,11 @@ const SECTIONS: Section[] = [
       <>
         <p>
           Es la pantalla donde registras un pedido nuevo. Según los módulos activos verás las pestañas de
-          Lavandería, Productos, Taller y/o Parqueadero.
+          Autolavado, Productos, Taller y/o Parqueadero.
         </p>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <strong>Lavandería/Productos</strong>: eliges los servicios o productos del catálogo, cantidad, forma de
+            <strong>Autolavado/Productos</strong>: eliges los servicios o productos del catálogo, cantidad, forma de
             pago y cliente (opcional).
           </li>
           <li>
@@ -57,7 +57,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          Registro completo de todos los pedidos de Lavandería, Productos y Taller. En la pestaña{" "}
+          Registro completo de todos los pedidos de Autolavado, Productos y Taller. En la pestaña{" "}
           <strong>Todos</strong> puedes filtrar por rango de fechas (por defecto muestra solo el día de hoy) y ves
           totalizadores: total vendido, cantidad de pedidos, y cuánto se cobró en Efectivo, Transferencia y
           Datáfono. El botón &quot;Exportar a Excel&quot; descarga exactamente el rango de fechas que tengas
@@ -81,7 +81,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          Aquí administras tu catálogo: los servicios/productos que ofreces en cada canal (Lavandería, Productos,
+          Aquí administras tu catálogo: los servicios/productos que ofreces en cada canal (Autolavado, Productos,
           Taller) y, si tienes Parqueadero activo, las tarifas por hora/día/mes.
         </p>
         <p>

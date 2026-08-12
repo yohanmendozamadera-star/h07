@@ -12,7 +12,7 @@ export type CatalogItem = {
 };
 
 export const CHANNEL_LABELS: Record<CatalogChannel, string> = {
-  lavanderia: "Lavandería",
+  lavanderia: "Autolavado",
   productos: "Productos",
   taller: "Taller",
 };

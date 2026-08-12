@@ -22,13 +22,13 @@ const STEPS = ["Bienvenida", "Módulos", "Servicios y tarifas", "Confirmación"]
 type CatalogChannel = "lavanderia" | "productos" | "taller";
 
 const CHANNEL_LABELS: Record<CatalogChannel, string> = {
-  lavanderia: "Lavandería",
+  lavanderia: "Autolavado",
   productos: "Productos",
   taller: "Taller",
 };
 
 const MODULE_TOGGLES: { key: keyof ModuleSelection; label: string }[] = [
-  { key: "lavanderiaEnabled", label: "Lavandería" },
+  { key: "lavanderiaEnabled", label: "Autolavado" },
   { key: "inventarioEnabled", label: "Productos" },
   { key: "tallerEnabled", label: "Taller" },
   { key: "parqueaderoEnabled", label: "Parqueadero" },
