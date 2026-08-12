@@ -146,8 +146,8 @@ export async function POST(request: NextRequest) {
 
       const emailResult = await sendEmail({
         to: ownerProfile.email,
-        subject: `Recibo de pago H07 - ${company.name}`,
-        html: `<p>Hola,</p><p>Confirmamos el pago de <strong>${formatCurrency(invoice.total_amount)}</strong> por el periodo del ${formatDate(periodStart)} al ${formatDate(periodEnd)}. Adjuntamos el recibo en PDF.</p>`,
+        subject: `¡Gracias por tu pago! - Recibo H07`,
+        html: `<p>Hola,</p><p>¡Gracias por tu pago! Confirmamos que recibimos <strong>${formatCurrency(invoice.total_amount)}</strong> por el periodo del ${formatDate(periodStart)} al ${formatDate(periodEnd)}, y tu cuenta de <strong>${company.name}</strong> sigue activa sin interrupciones. Adjuntamos el recibo en PDF.</p>`,
         attachments: [{ filename: `recibo-h07-${invoice.id}.pdf`, content: pdf.toString("base64") }],
       });
 
