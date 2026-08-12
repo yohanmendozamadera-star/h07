@@ -115,6 +115,7 @@ export function TomaPedidosClient({
       setCart((prev) =>
         prev.map((line, index) => (index === existingIndex ? { ...line, quantity: line.quantity + 1 } : line)),
       );
+      toast.success(`${item.name} — cantidad actualizada`, { duration: 1500 });
       return;
     }
 
@@ -146,6 +147,7 @@ export function TomaPedidosClient({
         priceType: item.price_type,
       },
     ]);
+    toast.success(`${item.name} agregado al pedido`, { duration: 1500 });
   };
 
   const updateQuantity = (index: number, quantity: number) => {
