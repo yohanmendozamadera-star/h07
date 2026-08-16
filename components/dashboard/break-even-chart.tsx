@@ -1,7 +1,7 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatCurrency, formatMonthLabel } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 export function BreakEvenChart({
   monthlySales,
@@ -10,6 +10,7 @@ export function BreakEvenChart({
   monthlySales: { month: string; total: number }[];
   breakEvenAmount: number | null;
 }) {
+  const { formatCurrency, formatMonthLabel } = useLocale();
   if (breakEvenAmount === null) return null;
 
   return (

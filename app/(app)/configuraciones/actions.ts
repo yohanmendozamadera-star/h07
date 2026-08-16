@@ -4,8 +4,33 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, can } from "@/lib/permissions";
 import { companySettingsFormSchema, sharedCatalogNameSchema } from "@/lib/validations/configuraciones";
+import { countrySelectionSchema } from "@/lib/validations/onboarding";
 
 export type ActionResult = { success: true } | { success: false; message: string };
+
+export async function updateCompanyCountryAction(input: unknown): Promise<ActionResult> {
+  const user = await getCurrentUser();
+  if (!user || !can(user.permissions, "configuraciones.manage")) {
+    return { success: false, message: "No tienes permiso para editar la configuración." };
+  }
+
+  const parsed = countrySelectionSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("companies")
+    .update({ country_code: parsed.data.countryCode })
+    .eq("id", user.empresaId);
+
+  if (error) return { success: false, message: error.message };
+
+  revalidatePath("/configuraciones");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
 
 export async function updateCompanySettingsAction(input: unknown): Promise<ActionResult> {
   const user = await getCurrentUser();

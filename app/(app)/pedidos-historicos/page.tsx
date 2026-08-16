@@ -1,7 +1,7 @@
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getPedidosHistoricos, getTallerFollowUps } from "@/lib/pedidos/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
-import { getTodayBogota } from "@/lib/format";
+import { getToday } from "@/lib/format";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { PedidosHistoricosClient } from "@/components/pedidos/pedidos-historicos-client";
 
@@ -29,7 +29,7 @@ export default async function PedidosHistoricosPage({
   }
 
   const params = await searchParams;
-  const today = getTodayBogota();
+  const today = getToday(user!.countryCode);
   const dateFrom = params.from ?? today;
   const dateTo = params.to ?? today;
 

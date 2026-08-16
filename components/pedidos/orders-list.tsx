@@ -2,8 +2,9 @@ import { Badge } from "@/components/ui/badge";
 import type { OrderListItem } from "@/lib/pedidos/types";
 import { paymentMethodLabel } from "@/lib/pedidos/types";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
-export function OrdersList({ orders }: { orders: OrderListItem[] }) {
+export function OrdersList({ orders, countryCode }: { orders: OrderListItem[]; countryCode: CountryCode }) {
   if (orders.length === 0) {
     return <p className="text-sm text-muted-foreground">Todavía no hay pedidos en este canal.</p>;
   }
@@ -29,8 +30,8 @@ export function OrdersList({ orders }: { orders: OrderListItem[] }) {
               <td className="p-2">{order.client_name ?? "—"}</td>
               <td className="p-2">{order.plate ?? "—"}</td>
               <td className="p-2">{paymentMethodLabel(order.payment_method)}</td>
-              <td className="p-2">{formatCurrency(order.total_amount)}</td>
-              <td className="p-2">{formatDateTime(order.created_at)}</td>
+              <td className="p-2">{formatCurrency(order.total_amount, countryCode)}</td>
+              <td className="p-2">{formatDateTime(order.created_at, countryCode)}</td>
               <td className="p-2">
                 <Badge variant={order.status === "completado" ? "success" : "outline"}>{order.status}</Badge>
               </td>

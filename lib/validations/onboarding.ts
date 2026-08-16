@@ -1,4 +1,11 @@
 import { z } from "zod";
+import { COUNTRY_CODES } from "@/lib/locale/countries";
+
+export const countrySelectionSchema = z.object({
+  countryCode: z.enum(COUNTRY_CODES),
+});
+
+export type CountrySelection = z.infer<typeof countrySelectionSchema>;
 
 export const moduleSelectionSchema = z.object({
   lavanderiaEnabled: z.boolean(),

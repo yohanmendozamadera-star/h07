@@ -5,8 +5,9 @@ import { RegisterFixedCostDialog } from "@/components/dashboard/register-fixed-c
 import { updateBudgetedFixedCostAction, updateRealFixedCostAction } from "@/app/(app)/dashboard/actions";
 import type { BudgetedBreakEven, RealBreakEven } from "@/lib/dashboard/types";
 import { formatCurrency } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
-export function BudgetedBreakEvenCard({ data }: { data: BudgetedBreakEven }) {
+export function BudgetedBreakEvenCard({ data, countryCode }: { data: BudgetedBreakEven; countryCode: CountryCode }) {
   const registerButton = (
     <RegisterFixedCostDialog
       kind="budgeted"
@@ -36,7 +37,7 @@ export function BudgetedBreakEvenCard({ data }: { data: BudgetedBreakEven }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Punto de equilibrio presupuestado</CardTitle>
-          <CardDescription>Costo fijo presupuestado: {formatCurrency(data.fixedCost)}</CardDescription>
+          <CardDescription>Costo fijo presupuestado: {formatCurrency(data.fixedCost, countryCode)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
@@ -55,7 +56,7 @@ export function BudgetedBreakEvenCard({ data }: { data: BudgetedBreakEven }) {
         <CardHeader>
           <CardTitle className="text-lg">Punto de equilibrio presupuestado</CardTitle>
           <CardDescription>
-            Costo fijo presupuestado {formatCurrency(data.fixedCost)}, margen de contribución promedio de los
+            Costo fijo presupuestado {formatCurrency(data.fixedCost, countryCode)}, margen de contribución promedio de los
             últimos {data.monthsUsed} {data.monthsUsed === 1 ? "mes" : "meses"}:{" "}
             {data.contributionMarginPercent!.toFixed(0)}%.
           </CardDescription>
@@ -77,19 +78,19 @@ export function BudgetedBreakEvenCard({ data }: { data: BudgetedBreakEven }) {
       <CardHeader>
         <CardTitle className="text-lg">Punto de equilibrio presupuestado</CardTitle>
         <CardDescription>
-          Costo fijo presupuestado {formatCurrency(data.fixedCost)}, margen de contribución promedio de los
+          Costo fijo presupuestado {formatCurrency(data.fixedCost, countryCode)}, margen de contribución promedio de los
           últimos {data.monthsUsed} {data.monthsUsed === 1 ? "mes" : "meses"}: {data.contributionMarginPercent!.toFixed(0)}%.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm">
-          Deberías facturar al menos <strong>{formatCurrency(data.breakEvenAmount)}</strong> al mes para cubrir tu
+          Deberías facturar al menos <strong>{formatCurrency(data.breakEvenAmount, countryCode)}</strong> al mes para cubrir tu
           presupuesto
           {data.ordersNeeded !== null && (
             <>
               {" "}
               — aproximadamente <strong>{data.ordersNeeded}</strong> pedidos (según tu ticket promedio de{" "}
-              {formatCurrency(data.avgTicket)}).
+              {formatCurrency(data.avgTicket, countryCode)}).
             </>
           )}
         </p>
@@ -107,7 +108,7 @@ export function BudgetedBreakEvenCard({ data }: { data: BudgetedBreakEven }) {
   );
 }
 
-export function RealBreakEvenCard({ data }: { data: RealBreakEven }) {
+export function RealBreakEvenCard({ data, countryCode }: { data: RealBreakEven; countryCode: CountryCode }) {
   const registerButton = (
     <RegisterFixedCostDialog
       kind="real"
@@ -137,7 +138,7 @@ export function RealBreakEvenCard({ data }: { data: RealBreakEven }) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Punto de equilibrio real</CardTitle>
-          <CardDescription>Costo fijo real: {formatCurrency(data.fixedCost)}</CardDescription>
+          <CardDescription>Costo fijo real: {formatCurrency(data.fixedCost, countryCode)}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
@@ -155,7 +156,7 @@ export function RealBreakEvenCard({ data }: { data: RealBreakEven }) {
         <CardHeader>
           <CardTitle className="text-lg">Punto de equilibrio real</CardTitle>
           <CardDescription>
-            Costo fijo real {formatCurrency(data.fixedCost)}, margen de contribución de este mes:{" "}
+            Costo fijo real {formatCurrency(data.fixedCost, countryCode)}, margen de contribución de este mes:{" "}
             {data.contributionMarginPercent!.toFixed(0)}%.
           </CardDescription>
         </CardHeader>
@@ -175,18 +176,18 @@ export function RealBreakEvenCard({ data }: { data: RealBreakEven }) {
       <CardHeader>
         <CardTitle className="text-lg">Punto de equilibrio real</CardTitle>
         <CardDescription>
-          Costo fijo real {formatCurrency(data.fixedCost)}, margen de contribución de este mes:{" "}
+          Costo fijo real {formatCurrency(data.fixedCost, countryCode)}, margen de contribución de este mes:{" "}
           {data.contributionMarginPercent!.toFixed(0)}%.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm">
-          Este mes necesitas facturar <strong>{formatCurrency(data.breakEvenAmount)}</strong> para cubrir tus costos
+          Este mes necesitas facturar <strong>{formatCurrency(data.breakEvenAmount, countryCode)}</strong> para cubrir tus costos
           reales
           {data.stillNeeded !== null && data.stillNeeded > 0 && (
             <>
               {" "}
-              — te faltan <strong>{formatCurrency(data.stillNeeded)}</strong> por facturar.
+              — te faltan <strong>{formatCurrency(data.stillNeeded, countryCode)}</strong> por facturar.
             </>
           )}
           {data.stillNeeded === 0 && <> — ¡ya lo lograste este mes!</>}
@@ -194,7 +195,7 @@ export function RealBreakEvenCard({ data }: { data: RealBreakEven }) {
 
         <div>
           <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-            <span>{formatCurrency(data.billedSoFar)} facturados este mes</span>
+            <span>{formatCurrency(data.billedSoFar, countryCode)} facturados este mes</span>
             <span>{data.progressPercent}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">

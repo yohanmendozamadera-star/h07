@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_COUNTRY, type CountryCode } from "@/lib/locale/countries";
 
 export type PermissionCode = string;
 
@@ -9,6 +10,7 @@ type ProfileWithRole = {
   email: string;
   avatar_url: string | null;
   is_active: boolean;
+  company: { country_code: CountryCode } | null;
   role: {
     code: string;
     name: string;
@@ -25,6 +27,7 @@ export type CurrentUser = {
   roleCode: string;
   roleName: string;
   permissions: PermissionCode[];
+  countryCode: CountryCode;
 };
 
 /**
@@ -45,7 +48,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "empresa_id, full_name, email, avatar_url, is_active, role:roles(code, name, role_permissions(permission:permissions(code)))",
+      "empresa_id, full_name, email, avatar_url, is_active, company:companies(country_code), role:roles(code, name, role_permissions(permission:permissions(code)))",
     )
     .eq("id", userId)
     .single<ProfileWithRole>();
@@ -65,6 +68,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     roleCode: data.role.code,
     roleName: data.role.name,
     permissions,
+    countryCode: data.company?.country_code ?? DEFAULT_COUNTRY,
   };
 });
 

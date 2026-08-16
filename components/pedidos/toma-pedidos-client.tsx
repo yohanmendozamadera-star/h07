@@ -18,7 +18,7 @@ import type { PedidoItemChannel, OrderListItem } from "@/lib/pedidos/types";
 import { PAYMENT_METHODS } from "@/lib/pedidos/types";
 import type { CreateOrderResult } from "@/lib/pedidos/create-order";
 import type { ParkingRate, OpenMovement } from "@/lib/parqueadero/types";
-import { formatCurrency } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 import { OrdersList } from "@/components/pedidos/orders-list";
 import { ParqueaderoClient } from "@/components/parqueadero/parqueadero-client";
 
@@ -65,6 +65,7 @@ export function TomaPedidosClient({
   graceMinutes: number;
 }) {
   const router = useRouter();
+  const { formatCurrency, countryCode } = useLocale();
   const tabs: string[] = [...enabledChannels, ...(parqueaderoEnabled ? ["parqueadero"] : [])];
   const [activeTab, setActiveTab] = useState<string>(tabs[0] ?? "");
 
@@ -621,7 +622,7 @@ export function TomaPedidosClient({
 
       <div className={cn("space-y-2", showCart && "pb-16 lg:pb-0")}>
         <h2 className="text-sm font-medium text-muted-foreground">Pedidos recientes (últimas 3 horas)</h2>
-        <OrdersList orders={orders} />
+        <OrdersList orders={orders} countryCode={countryCode} />
       </div>
     </div>
   );

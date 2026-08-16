@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/permissions";
+import { LocaleProvider } from "@/lib/locale/locale-context";
 
 // Sin AppShell a propósito: el onboarding corre antes de que la empresa
 // tenga módulos activos que mostrar en el menú lateral.
@@ -8,8 +9,10 @@ export default async function OnboardingLayout({ children }: { children: React.R
   if (!user) redirect("/login");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-blue-50 p-4 dark:bg-blue-950/30">
-      {children}
-    </div>
+    <LocaleProvider countryCode={user.countryCode}>
+      <div className="flex min-h-screen items-center justify-center bg-blue-50 p-4 dark:bg-blue-950/30">
+        {children}
+      </div>
+    </LocaleProvider>
   );
 }

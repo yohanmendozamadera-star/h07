@@ -3,17 +3,20 @@ import { ExpenseFormDialog } from "@/components/gastos/expense-form-dialog";
 import type { ExpenseRow } from "@/lib/gastos/types";
 import type { SharedCatalogRow } from "@/lib/configuraciones/types";
 import { formatCurrency, formatDate } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
 export function GastosTable({
   expenses,
   categories,
   suppliers,
   canEdit,
+  countryCode,
 }: {
   expenses: ExpenseRow[];
   categories: SharedCatalogRow[];
   suppliers: SharedCatalogRow[];
   canEdit: boolean;
+  countryCode: CountryCode;
 }) {
   if (expenses.length === 0) {
     return <p className="text-sm text-muted-foreground">Todavía no hay gastos registrados.</p>;
@@ -36,7 +39,7 @@ export function GastosTable({
         <tbody>
           {expenses.map((expense) => (
             <tr key={expense.id} className="border-t">
-              <td className="p-2">{formatDate(expense.expense_date)}</td>
+              <td className="p-2">{formatDate(expense.expense_date, countryCode)}</td>
               <td className="p-2">
                 <Badge variant={expense.type === "fijo" ? "secondary" : "outline"}>
                   {expense.type === "fijo" ? "Fijo" : "Variable"}
@@ -45,7 +48,7 @@ export function GastosTable({
               <td className="p-2">{expense.category?.name ?? "—"}</td>
               <td className="p-2">{expense.supplier?.name ?? "—"}</td>
               <td className="p-2">{expense.description ?? "—"}</td>
-              <td className="p-2">{formatCurrency(expense.amount)}</td>
+              <td className="p-2">{formatCurrency(expense.amount, countryCode)}</td>
               {canEdit && (
                 <td className="p-2 text-right">
                   <ExpenseFormDialog categories={categories} suppliers={suppliers} expense={expense} />

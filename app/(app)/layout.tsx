@@ -4,6 +4,7 @@ import { getPlatformAdmin } from "@/lib/permissions/platform";
 import { getCompanyOnboardingStatus } from "@/lib/companies/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
 import { AppShell } from "@/components/layout/app-shell";
+import { LocaleProvider } from "@/lib/locale/locale-context";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -27,15 +28,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [platformAdmin, planActive] = await Promise.all([getPlatformAdmin(), hasActivePlan(user.empresaId)]);
 
   return (
-    <AppShell
-      fullName={user.fullName}
-      roleName={user.roleName}
-      avatarUrl={user.avatarUrl}
-      permissions={user.permissions}
-      isPlatformAdmin={Boolean(platformAdmin)}
-      hasActivePlan={planActive}
-    >
-      {children}
-    </AppShell>
+    <LocaleProvider countryCode={user.countryCode}>
+      <AppShell
+        fullName={user.fullName}
+        roleName={user.roleName}
+        avatarUrl={user.avatarUrl}
+        permissions={user.permissions}
+        isPlatformAdmin={Boolean(platformAdmin)}
+        hasActivePlan={planActive}
+      >
+        {children}
+      </AppShell>
+    </LocaleProvider>
   );
 }

@@ -6,7 +6,7 @@ import { ShrinkageFormDialog } from "@/components/inventario/shrinkage-form-dial
 import type { CatalogItem } from "@/lib/servicios/types";
 import type { SharedCatalogRow } from "@/lib/configuraciones/types";
 import type { PurchaseRow, ShrinkageRow, StockRow } from "@/lib/inventario/types";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 export function InventarioClient({
   items,
@@ -23,6 +23,7 @@ export function InventarioClient({
   stock: StockRow[];
   canCreate: boolean;
 }) {
+  const { formatCurrency, formatDate } = useLocale();
   if (items.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">

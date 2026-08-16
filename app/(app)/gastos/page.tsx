@@ -1,7 +1,7 @@
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getExpenses } from "@/lib/gastos/queries";
 import { getExpenseCategories, getSuppliers } from "@/lib/configuraciones/queries";
-import { getTodayBogota } from "@/lib/format";
+import { getToday } from "@/lib/format";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { ExpenseFormDialog } from "@/components/gastos/expense-form-dialog";
 import { GastosTable } from "@/components/gastos/gastos-table";
@@ -22,7 +22,8 @@ export default async function GastosPage({
   }
 
   const params = await searchParams;
-  const today = getTodayBogota();
+  const countryCode = user!.countryCode;
+  const today = getToday(countryCode);
   const dateFrom = params.from ?? today;
   const dateTo = params.to ?? today;
 
@@ -55,9 +56,15 @@ export default async function GastosPage({
         <ExportButton href={`/gastos/export?from=${dateFrom}&to=${dateTo}`} />
       </div>
 
-      <GastosSummary expenses={expenses} />
+      <GastosSummary expenses={expenses} countryCode={countryCode} />
 
-      <GastosTable expenses={expenses} categories={activeCategories} suppliers={activeSuppliers} canEdit={canEdit} />
+      <GastosTable
+        expenses={expenses}
+        categories={activeCategories}
+        suppliers={activeSuppliers}
+        canEdit={canEdit}
+        countryCode={countryCode}
+      />
     </div>
   );
 }

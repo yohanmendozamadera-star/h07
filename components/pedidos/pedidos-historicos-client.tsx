@@ -7,9 +7,11 @@ import { OrdersSummary } from "@/components/pedidos/orders-summary";
 import { DateRangeFilter } from "@/components/shared/date-range-filter";
 import { ExportButton } from "@/components/shared/export-button";
 import type { OrderListItem, TallerFollowUp } from "@/lib/pedidos/types";
-import { formatDate, getTodayBogota } from "@/lib/format";
+import { getToday } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 function TallerFollowUpsTable({ followUps }: { followUps: TallerFollowUp[] }) {
+  const { formatDate, countryCode } = useLocale();
   if (followUps.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -18,7 +20,7 @@ function TallerFollowUpsTable({ followUps }: { followUps: TallerFollowUp[] }) {
     );
   }
 
-  const today = getTodayBogota();
+  const today = getToday(countryCode);
 
   return (
     <div className="overflow-x-auto rounded-md border">
@@ -68,6 +70,7 @@ export function PedidosHistoricosClient({
   defaultTo: string;
   exportHref: string;
 }) {
+  const { countryCode } = useLocale();
   return (
     <Tabs defaultValue="todos">
       <TabsList>
@@ -80,8 +83,8 @@ export function PedidosHistoricosClient({
           <DateRangeFilter defaultFrom={defaultFrom} defaultTo={defaultTo} />
           <ExportButton href={exportHref} />
         </div>
-        <OrdersSummary orders={orders} />
-        <OrdersList orders={orders} />
+        <OrdersSummary orders={orders} countryCode={countryCode} />
+        <OrdersList orders={orders} countryCode={countryCode} />
       </TabsContent>
 
       <TabsContent value="taller" className="space-y-2 pt-3">

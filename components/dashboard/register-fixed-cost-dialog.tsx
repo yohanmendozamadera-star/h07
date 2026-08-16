@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { formatDate } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 const COPY = {
   budgeted: {
@@ -54,6 +54,7 @@ export function RegisterFixedCostDialog({
   currentValueUpdatedAt: string | null;
   onSave: (input: unknown) => Promise<{ success: true } | { success: false; message: string }>;
 }) {
+  const { formatDate } = useLocale();
   const copy = COPY[kind];
   const isEdit = currentValue !== null;
   const [open, setOpen] = useState(false);

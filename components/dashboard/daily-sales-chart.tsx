@@ -3,9 +3,10 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DailySalesPoint } from "@/lib/dashboard/types";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 export function DailySalesChart({ points }: { points: DailySalesPoint[] }) {
+  const { formatCurrency, formatDate } = useLocale();
   const hasSales = points.some((p) => p.total > 0);
 
   return (

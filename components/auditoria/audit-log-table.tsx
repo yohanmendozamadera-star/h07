@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { AuditAction, AuditLogRow } from "@/lib/audit/types";
 import { ACTION_LABELS, MODULE_LABELS, buildDiffRows } from "@/lib/audit/labels";
-import { formatDateTime } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 const ACTION_VARIANTS: Record<AuditAction, "success" | "outline" | "destructive"> = {
   create: "success",
@@ -18,6 +18,7 @@ const ACTION_VARIANTS: Record<AuditAction, "success" | "outline" | "destructive"
 };
 
 export function AuditLogTable({ logs }: { logs: AuditLogRow[] }) {
+  const { formatDateTime } = useLocale();
   const [selected, setSelected] = useState<AuditLogRow | null>(null);
   const diffRows = selected ? buildDiffRows(selected.old_data, selected.new_data) : [];
 

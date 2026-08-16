@@ -1,6 +1,6 @@
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getAuditLogs } from "@/lib/audit/queries";
-import { getTodayBogota } from "@/lib/format";
+import { getToday } from "@/lib/format";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { AuditLogTable } from "@/components/auditoria/audit-log-table";
 import { DateRangeFilter } from "@/components/shared/date-range-filter";
@@ -19,7 +19,7 @@ export default async function AuditoriaPage({
   }
 
   const params = await searchParams;
-  const today = getTodayBogota();
+  const today = getToday(user!.countryCode);
   const dateFrom = params.from ?? today;
   const dateTo = params.to ?? today;
 

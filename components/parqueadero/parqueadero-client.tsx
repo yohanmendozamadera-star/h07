@@ -21,7 +21,7 @@ import type { ClientRow } from "@/lib/clientes/types";
 import type { ParkingRate, OpenMovement } from "@/lib/parqueadero/types";
 import { calculateParkingCharge } from "@/lib/parqueadero/tariff";
 import { PAYMENT_METHODS } from "@/lib/pedidos/types";
-import { formatCurrency } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 import { registrarEntradaParqueadero, registrarSalidaParqueadero } from "@/app/(app)/toma-pedidos/actions";
 
 function formatElapsed(minutes: number) {
@@ -32,6 +32,7 @@ function formatElapsed(minutes: number) {
 
 function MovementRow({ movement, graceMinutes }: { movement: OpenMovement; graceMinutes: number }) {
   const router = useRouter();
+  const { formatCurrency } = useLocale();
   const [now, setNow] = useState(() => new Date());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -136,6 +137,7 @@ export function ParqueaderoClient({
   graceMinutes: number;
 }) {
   const router = useRouter();
+  const { formatCurrency } = useLocale();
   const [plate, setPlate] = useState("");
   const [clientId, setClientId] = useState("");
   const [parkingRateId, setParkingRateId] = useState("");

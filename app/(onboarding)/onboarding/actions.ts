@@ -4,13 +4,29 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
 import {
+  countrySelectionSchema,
   moduleSelectionSchema,
   catalogItemDraftSchema,
   parkingRateDraftSchema,
+  type CountrySelection,
   type ModuleSelection,
   type CatalogItemDraft,
   type ParkingRateDraft,
 } from "@/lib/validations/onboarding";
+
+export async function saveCountryAction(input: CountrySelection) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error("No autenticado");
+  const data = countrySelectionSchema.parse(input);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("companies")
+    .update({ country_code: data.countryCode })
+    .eq("id", user.empresaId);
+
+  if (error) throw new Error(error.message);
+}
 
 export async function saveModulesAction(input: ModuleSelection) {
   const user = await getCurrentUser();

@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { getTodayBogota, getMonthStartBogota, toBogotaDateString } from "@/lib/format";
+import { getToday, getMonthStart, toDateString } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 import type {
   DashboardSummary,
   DailySalesPoint,
@@ -15,10 +16,10 @@ type ExpenseRow = { amount: number; expense_date: string };
 // Se agregan en memoria (no con una vista SQL): a la escala de un solo
 // negocio esto es simple y suficientemente rápido, y evita otra migración
 // solo para reportes que probablemente cambien de forma en fases futuras.
-export const getDashboardSummary = cache(async (): Promise<DashboardSummary> => {
+export const getDashboardSummary = cache(async (countryCode: CountryCode): Promise<DashboardSummary> => {
   const supabase = await createClient();
-  const today = getTodayBogota();
-  const monthStart = getMonthStartBogota();
+  const today = getToday(countryCode);
+  const monthStart = getMonthStart(countryCode);
 
   const [ordersRes, expensesRes] = await Promise.all([
     supabase
@@ -67,10 +68,10 @@ export const getDashboardSummary = cache(async (): Promise<DashboardSummary> => 
   };
 });
 
-export const getDailySales = cache(async (): Promise<DailySalesPoint[]> => {
+export const getDailySales = cache(async (countryCode: CountryCode): Promise<DailySalesPoint[]> => {
   const supabase = await createClient();
-  const monthStart = getMonthStartBogota();
-  const today = getTodayBogota();
+  const monthStart = getMonthStart(countryCode);
+  const today = getToday(countryCode);
 
   const { data } = await supabase
     .from("orders")
@@ -83,9 +84,9 @@ export const getDailySales = cache(async (): Promise<DailySalesPoint[]> => {
   const byDate = new Map<string, number>();
   for (const order of data ?? []) {
     // created_at es UTC — agrupar por sus primeros 10 caracteres corría mal
-    // las órdenes creadas entre 7pm y medianoche hora Colombia (caían del
-    // lado del día siguiente en UTC).
-    const date = toBogotaDateString(new Date(order.created_at));
+    // las órdenes creadas entre 7pm y medianoche hora local (caían del lado
+    // del día siguiente en UTC).
+    const date = toDateString(new Date(order.created_at), countryCode);
     byDate.set(date, (byDate.get(date) ?? 0) + order.total_amount);
   }
 
@@ -165,7 +166,7 @@ type FixedCostSettings = {
 // PRESUPUESTÓ para su negocio (ver RegisterFixedCostDialog). El margen de
 // contribución se sigue calculando solo, promediado sobre los últimos meses
 // reales (mínimo 1, máximo 6, limitado a lo que la empresa lleva activa).
-export const getBudgetedBreakEven = cache(async (empresaId: string): Promise<BudgetedBreakEven> => {
+export const getBudgetedBreakEven = cache(async (empresaId: string, countryCode: CountryCode): Promise<BudgetedBreakEven> => {
   const supabase = await createClient();
 
   const [companyRes, settingsRes] = await Promise.all([
@@ -177,7 +178,7 @@ export const getBudgetedBreakEven = cache(async (empresaId: string): Promise<Bud
       .single<FixedCostSettings>(),
   ]);
 
-  const today = new Date(`${getTodayBogota()}T00:00:00`);
+  const today = new Date(`${getToday(countryCode)}T00:00:00`);
   const companyCreatedAt = companyRes.data?.created_at ? new Date(companyRes.data.created_at) : today;
   const monthsSinceCreated =
     (today.getFullYear() - companyCreatedAt.getFullYear()) * 12 + (today.getMonth() - companyCreatedAt.getMonth()) + 1;
@@ -232,7 +233,7 @@ export const getBudgetedBreakEven = cache(async (empresaId: string): Promise<Bud
   // (una barra por mes) comparado contra la línea del punto de equilibrio.
   const salesByMonth = new Map<string, number>();
   for (const order of ordersRes.data ?? []) {
-    const month = toBogotaDateString(new Date(order.created_at)).slice(0, 7);
+    const month = toDateString(new Date(order.created_at), countryCode).slice(0, 7);
     salesByMonth.set(month, (salesByMonth.get(month) ?? 0) + order.total_amount);
   }
   const monthlySales: { month: string; total: number }[] = [];
@@ -259,9 +260,9 @@ export const getBudgetedBreakEven = cache(async (empresaId: string): Promise<Bud
 // que paga cada mes, y el margen de contribución se calcula con las ventas
 // y costos del mes EN CURSO (no un promedio), para saber en tiempo real
 // cuánto le falta facturar este mes para cubrir sus costos.
-export const getRealBreakEven = cache(async (empresaId: string): Promise<RealBreakEven> => {
+export const getRealBreakEven = cache(async (empresaId: string, countryCode: CountryCode): Promise<RealBreakEven> => {
   const supabase = await createClient();
-  const monthStart = getMonthStartBogota();
+  const monthStart = getMonthStart(countryCode);
 
   const [settingsRes, ordersRes, variableRes, purchasesRes] = await Promise.all([
     supabase

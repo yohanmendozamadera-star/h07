@@ -6,7 +6,7 @@ import {
   getRealBreakEven,
   getTechnicianProductivityDetail,
 } from "@/lib/dashboard/queries";
-import { getTodayBogota } from "@/lib/format";
+import { getToday } from "@/lib/format";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
@@ -27,15 +27,16 @@ export default async function DashboardPage({
   }
 
   const params = await searchParams;
-  const today = getTodayBogota();
+  const countryCode = user!.countryCode;
+  const today = getToday(countryCode);
   const dateFrom = params.from ?? today;
   const dateTo = params.to ?? today;
 
   const [summary, dailySales, budgetedBreakEven, realBreakEven, productivity] = await Promise.all([
-    getDashboardSummary(),
-    getDailySales(),
-    getBudgetedBreakEven(user!.empresaId),
-    getRealBreakEven(user!.empresaId),
+    getDashboardSummary(countryCode),
+    getDailySales(countryCode),
+    getBudgetedBreakEven(user!.empresaId, countryCode),
+    getRealBreakEven(user!.empresaId, countryCode),
     getTechnicianProductivityDetail(dateFrom, dateTo),
   ]);
 
@@ -51,7 +52,7 @@ export default async function DashboardPage({
         </TabsList>
 
         <TabsContent value="ventas" className="space-y-4 pt-3">
-          <SummaryCards summary={summary} />
+          <SummaryCards summary={summary} countryCode={countryCode} />
           <DailySalesChart points={dailySales} />
         </TabsContent>
 
@@ -61,12 +62,13 @@ export default async function DashboardPage({
             defaultFrom={today}
             defaultTo={today}
             exportHref={`/productividad/export?from=${dateFrom}&to=${dateTo}`}
+            countryCode={countryCode}
           />
         </TabsContent>
 
         <TabsContent value="punto-equilibrio" className="space-y-4 pt-3">
-          <BudgetedBreakEvenCard data={budgetedBreakEven} />
-          <RealBreakEvenCard data={realBreakEven} />
+          <BudgetedBreakEvenCard data={budgetedBreakEven} countryCode={countryCode} />
+          <RealBreakEvenCard data={realBreakEven} countryCode={countryCode} />
         </TabsContent>
       </Tabs>
     </div>

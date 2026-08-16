@@ -46,10 +46,10 @@ export function SupportWhatsappForm({ config }: { config: PlatformConfig }) {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="max-w-xs space-y-1.5" noValidate>
           <Label htmlFor="phoneNumber">Número (indicativo de país + número, sin espacios ni símbolos)</Label>
-          <Input id="phoneNumber" placeholder="573001234567" {...register("phoneNumber")} />
+          <Input id="phoneNumber" placeholder="521XXXXXXXXXX" {...register("phoneNumber")} />
           <p className="text-xs text-muted-foreground">
-            Ejemplo: si tu número de soporte en Colombia es 300 123 4567, escribe <strong>573001234567</strong> (57
-            = indicativo de Colombia, sin el 0 ni el +).
+            Escribe el indicativo de país seguido del número, sin espacios, sin el 0 inicial ni el +. Ejemplos:
+            Colombia → <strong>573001234567</strong>, México → <strong>5215512345678</strong>.
           </p>
           {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>}
           <Button type="submit" size="sm" disabled={isSubmitting} className="mt-1">

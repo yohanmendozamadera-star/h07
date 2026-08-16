@@ -23,6 +23,7 @@ export default async function OnboardingPage() {
           tallerEnabled: settings?.taller_enabled ?? false,
           parqueaderoEnabled: settings?.parqueadero_enabled ?? false,
         }}
+        initialCountryCode={user.countryCode}
       />
     </div>
   );

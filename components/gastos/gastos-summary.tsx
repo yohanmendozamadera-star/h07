@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { ExpenseRow } from "@/lib/gastos/types";
 import { formatCurrency } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -13,7 +14,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function GastosSummary({ expenses }: { expenses: ExpenseRow[] }) {
+export function GastosSummary({ expenses, countryCode }: { expenses: ExpenseRow[]; countryCode: CountryCode }) {
   let totalFijo = 0;
   let totalVariable = 0;
   for (const expense of expenses) {
@@ -23,9 +24,9 @@ export function GastosSummary({ expenses }: { expenses: ExpenseRow[] }) {
 
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-      <Stat label="Total gastado" value={formatCurrency(totalFijo + totalVariable)} />
-      <Stat label="Costos fijos" value={formatCurrency(totalFijo)} />
-      <Stat label="Costos variables" value={formatCurrency(totalVariable)} />
+      <Stat label="Total gastado" value={formatCurrency(totalFijo + totalVariable, countryCode)} />
+      <Stat label="Costos fijos" value={formatCurrency(totalFijo, countryCode)} />
+      <Stat label="Costos variables" value={formatCurrency(totalVariable, countryCode)} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DashboardSummary } from "@/lib/dashboard/types";
 import { formatCurrency } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
 function SummaryCard({ label, value, description }: { label: string; value: string; description?: string }) {
   return (
@@ -14,13 +15,25 @@ function SummaryCard({ label, value, description }: { label: string; value: stri
   );
 }
 
-export function SummaryCards({ summary }: { summary: DashboardSummary }) {
+export function SummaryCards({ summary, countryCode }: { summary: DashboardSummary; countryCode: CountryCode }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <SummaryCard label="Ventas de hoy" value={formatCurrency(summary.salesToday)} />
-      <SummaryCard label="Ventas del mes" value={formatCurrency(summary.salesMonth)} description={`${summary.ordersMonth} pedido(s)`} />
-      <SummaryCard label="Gastos del mes" value={formatCurrency(summary.expensesMonth)} description={`Hoy: ${formatCurrency(summary.expensesToday)}`} />
-      <SummaryCard label="Utilidad del mes" value={formatCurrency(summary.profitMonth)} description={`${summary.clientsMonth} cliente(s) atendido(s)`} />
+      <SummaryCard label="Ventas de hoy" value={formatCurrency(summary.salesToday, countryCode)} />
+      <SummaryCard
+        label="Ventas del mes"
+        value={formatCurrency(summary.salesMonth, countryCode)}
+        description={`${summary.ordersMonth} pedido(s)`}
+      />
+      <SummaryCard
+        label="Gastos del mes"
+        value={formatCurrency(summary.expensesMonth, countryCode)}
+        description={`Hoy: ${formatCurrency(summary.expensesToday, countryCode)}`}
+      />
+      <SummaryCard
+        label="Utilidad del mes"
+        value={formatCurrency(summary.profitMonth, countryCode)}
+        description={`${summary.clientsMonth} cliente(s) atendido(s)`}
+      />
     </div>
   );
 }

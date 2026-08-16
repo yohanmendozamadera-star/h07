@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getExpenses } from "@/lib/gastos/queries";
 import { buildExcelResponse } from "@/lib/excel/build-workbook";
-import { getTodayBogota, formatDate } from "@/lib/format";
+import { getToday, formatDate } from "@/lib/format";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     return new Response("No autorizado", { status: 403 });
   }
 
-  const today = getTodayBogota();
+  const today = getToday(user.countryCode);
   const searchParams = request.nextUrl.searchParams;
   const from = searchParams.get("from") ?? today;
   const to = searchParams.get("to") ?? today;
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
           { header: "Monto", key: "monto", width: 14 },
         ],
         rows: expenses.map((expense) => ({
-          fecha: formatDate(expense.expense_date),
+          fecha: formatDate(expense.expense_date, user.countryCode),
           tipo: expense.type === "fijo" ? "Fijo" : "Variable",
           descripcion: expense.description ?? "",
           categoria: expense.category?.name ?? "",

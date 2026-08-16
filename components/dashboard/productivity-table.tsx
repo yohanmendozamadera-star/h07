@@ -4,6 +4,7 @@ import { DateRangeFilter } from "@/components/shared/date-range-filter";
 import { ExportButton } from "@/components/shared/export-button";
 import type { TechnicianProductivityDetailRow } from "@/lib/dashboard/types";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
 function summarize(rows: TechnicianProductivityDetailRow[]) {
   const byTech = new Map<
@@ -30,11 +31,13 @@ export function ProductivityTable({
   defaultFrom,
   defaultTo,
   exportHref,
+  countryCode,
 }: {
   rows: TechnicianProductivityDetailRow[];
   defaultFrom: string;
   defaultTo: string;
   exportHref: string;
+  countryCode: CountryCode;
 }) {
   const summary = summarize(rows);
   const commissionEnabled = rows.some((row) => row.commissionPercent !== null);
@@ -72,8 +75,8 @@ export function ProductivityTable({
                     <tr key={row.technicianName} className="border-t">
                       <td className="p-2">{row.technicianName}</td>
                       <td className="p-2">{row.orderCount}</td>
-                      <td className="p-2">{formatCurrency(row.totalAmount)}</td>
-                      {commissionEnabled && <td className="p-2">{formatCurrency(row.commissionAmount)}</td>}
+                      <td className="p-2">{formatCurrency(row.totalAmount, countryCode)}</td>
+                      {commissionEnabled && <td className="p-2">{formatCurrency(row.commissionAmount, countryCode)}</td>}
                     </tr>
                   ))}
                 </tbody>
@@ -118,14 +121,14 @@ export function ProductivityTable({
                 <tbody>
                   {rows.map((row) => (
                     <tr key={row.orderId} className="border-t">
-                      <td className="p-2">{formatDateTime(row.date)}</td>
+                      <td className="p-2">{formatDateTime(row.date, countryCode)}</td>
                       <td className="p-2">{row.technicianName}</td>
                       <td className="p-2 text-muted-foreground">{row.orderNumber}</td>
-                      <td className="p-2">{formatCurrency(row.totalAmount)}</td>
+                      <td className="p-2">{formatCurrency(row.totalAmount, countryCode)}</td>
                       {commissionEnabled && (
                         <>
                           <td className="p-2">{row.commissionPercent}%</td>
-                          <td className="p-2">{formatCurrency(row.commissionAmount ?? 0)}</td>
+                          <td className="p-2">{formatCurrency(row.commissionAmount ?? 0, countryCode)}</td>
                         </>
                       )}
                     </tr>

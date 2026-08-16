@@ -2,6 +2,7 @@ import { getCurrentUser, can } from "@/lib/permissions";
 import { getCompanySettings, getExpenseCategories, getSuppliers } from "@/lib/configuraciones/queries";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { SettingsForm } from "@/components/configuraciones/settings-form";
+import { CompanyCountryForm } from "@/components/configuraciones/company-country-form";
 import { SharedCatalogManager } from "@/components/configuraciones/shared-catalog-manager";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -42,7 +43,8 @@ export default async function ConfiguracionesPage() {
           <TabsTrigger value="proveedores">Proveedores</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="modulos" className="pt-3">
+        <TabsContent value="modulos" className="space-y-4 pt-3">
+          <CompanyCountryForm countryCode={user!.countryCode} />
           <SettingsForm settings={settings} />
         </TabsContent>
 

@@ -3,7 +3,7 @@ import { getCurrentUser, can } from "@/lib/permissions";
 import { getAuditLogs } from "@/lib/audit/queries";
 import { ACTION_LABELS, MODULE_LABELS } from "@/lib/audit/labels";
 import { buildExcelResponse } from "@/lib/excel/build-workbook";
-import { getTodayBogota, formatDateTime } from "@/lib/format";
+import { getToday, formatDateTime } from "@/lib/format";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     return new Response("No autorizado", { status: 403 });
   }
 
-  const today = getTodayBogota();
+  const today = getToday(user.countryCode);
   const searchParams = request.nextUrl.searchParams;
   const from = searchParams.get("from") ?? today;
   const to = searchParams.get("to") ?? today;
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
           { header: "Módulo", key: "modulo", width: 20 },
         ],
         rows: logs.map((log) => ({
-          fecha: formatDateTime(log.created_at),
+          fecha: formatDateTime(log.created_at, user.countryCode),
           usuario: log.userName ?? "Sistema",
           accion: ACTION_LABELS[log.action],
           modulo: MODULE_LABELS[log.module] ?? log.module,

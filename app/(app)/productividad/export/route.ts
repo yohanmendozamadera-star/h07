@@ -1,9 +1,8 @@
 import { NextRequest } from "next/server";
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getTechnicianProductivityDetail } from "@/lib/dashboard/queries";
-import { getTodayBogota } from "@/lib/format";
+import { getToday, formatDateTime } from "@/lib/format";
 import { buildExcelResponse } from "@/lib/excel/build-workbook";
-import { formatDateTime } from "@/lib/format";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
@@ -11,7 +10,7 @@ export async function GET(request: NextRequest) {
     return new Response("No autorizado", { status: 403 });
   }
 
-  const today = getTodayBogota();
+  const today = getToday(user.countryCode);
   const searchParams = request.nextUrl.searchParams;
   const from = searchParams.get("from") ?? today;
   const to = searchParams.get("to") ?? today;
@@ -36,7 +35,7 @@ export async function GET(request: NextRequest) {
             : []),
         ],
         rows: rows.map((row) => ({
-          fecha: formatDateTime(row.date),
+          fecha: formatDateTime(row.date, user.countryCode),
           tecnico: row.technicianName,
           pedido: row.orderNumber,
           total: row.totalAmount,

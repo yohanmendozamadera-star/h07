@@ -4,7 +4,7 @@ import { getPedidosHistoricos } from "@/lib/pedidos/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
 import { paymentMethodLabel } from "@/lib/pedidos/types";
 import { buildExcelResponse } from "@/lib/excel/build-workbook";
-import { getTodayBogota, formatDateTime } from "@/lib/format";
+import { getToday, formatDateTime } from "@/lib/format";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser();
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     return new Response("El historial completo es un beneficio de los planes pagos.", { status: 403 });
   }
 
-  const today = getTodayBogota();
+  const today = getToday(user.countryCode);
   const searchParams = request.nextUrl.searchParams;
   const from = searchParams.get("from") ?? today;
   const to = searchParams.get("to") ?? today;
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           placa: order.plate ?? "",
           pago: paymentMethodLabel(order.payment_method),
           total: order.total_amount,
-          fecha: formatDateTime(order.created_at),
+          fecha: formatDateTime(order.created_at, user.countryCode),
           estado: order.status,
         })),
       },

@@ -12,7 +12,7 @@ import { ImportServicesDialog } from "@/components/servicios/import-services-dia
 import { toggleCatalogItemActive, toggleParkingRateActive } from "@/app/(app)/servicios/actions";
 import { CHANNEL_LABELS, type CatalogChannel, type CatalogItem } from "@/lib/servicios/types";
 import type { ParkingRate } from "@/lib/parqueadero/types";
-import { formatCurrency } from "@/lib/format";
+import { useLocale } from "@/lib/locale/locale-context";
 
 export function ServiciosClient({
   items,
@@ -27,6 +27,7 @@ export function ServiciosClient({
   parqueaderoEnabled: boolean;
   canEdit: boolean;
 }) {
+  const { formatCurrency } = useLocale();
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [confirmItem, setConfirmItem] = useState<CatalogItem | null>(null);
   const [confirmRate, setConfirmRate] = useState<ParkingRate | null>(null);

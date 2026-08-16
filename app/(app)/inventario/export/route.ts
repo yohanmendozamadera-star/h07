@@ -41,7 +41,7 @@ export async function GET() {
           { header: "Proveedor", key: "proveedor", width: 20 },
         ],
         rows: purchases.map((purchase) => ({
-          fecha: formatDate(purchase.purchase_date),
+          fecha: formatDate(purchase.purchase_date, user.countryCode),
           producto: purchase.catalog_item?.name ?? "",
           cantidad: purchase.quantity,
           costoUnitario: purchase.unit_cost,
@@ -58,7 +58,7 @@ export async function GET() {
           { header: "Motivo", key: "motivo", width: 28 },
         ],
         rows: shrinkages.map((shrinkage) => ({
-          fecha: formatDate(shrinkage.shrinkage_date),
+          fecha: formatDate(shrinkage.shrinkage_date, user.countryCode),
           producto: shrinkage.catalog_item?.name ?? "",
           cantidad: shrinkage.quantity,
           motivo: shrinkage.reason ?? "",

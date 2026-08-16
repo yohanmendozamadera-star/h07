@@ -10,12 +10,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
+  saveCountryAction,
   saveModulesAction,
   saveCatalogItemsAction,
   saveParkingRatesAction,
   completeOnboardingAction,
 } from "@/app/(onboarding)/onboarding/actions";
 import type { ModuleSelection, CatalogItemDraft, ParkingRateDraft } from "@/lib/validations/onboarding";
+import { COUNTRIES, COUNTRY_CODES, type CountryCode } from "@/lib/locale/countries";
 
 const STEPS = ["Bienvenida", "Módulos", "Servicios y tarifas", "Confirmación"];
 
@@ -42,9 +44,16 @@ function emptyParkingRow(): ParkingRateDraft {
   return { name: "", rateType: "hora", amount: 0 };
 }
 
-export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleSelection }) {
+export function OnboardingWizard({
+  initialSettings,
+  initialCountryCode,
+}: {
+  initialSettings: ModuleSelection;
+  initialCountryCode: CountryCode;
+}) {
   const [step, setStep] = useState(0);
   const [pending, startTransition] = useTransition();
+  const [country, setCountry] = useState<CountryCode>(initialCountryCode);
   const [modules, setModules] = useState<ModuleSelection>(initialSettings);
   const [catalogDrafts, setCatalogDrafts] = useState<Record<CatalogChannel, CatalogItemDraft[]>>({
     lavanderia: [emptyCatalogRow("lavanderia")],
@@ -61,6 +70,17 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
 
   const goNext = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const goBack = () => setStep((s) => Math.max(s - 1, 0));
+
+  const handleCountryNext = () => {
+    startTransition(async () => {
+      try {
+        await saveCountryAction({ countryCode: country });
+        goNext();
+      } catch (error) {
+        toast.error("No fue posible guardar el país", { description: (error as Error).message });
+      }
+    });
+  };
 
   const handleModulesNext = () => {
     if (!MODULE_TOGGLES.some(({ key }) => modules[key])) {
@@ -147,7 +167,27 @@ export function OnboardingWizard({ initialSettings }: { initialSettings: ModuleS
               Vamos a activar los módulos de negocio que usas y a cargar tus primeros servicios y
               precios, para que puedas empezar a tomar pedidos de inmediato.
             </p>
-            <Button onClick={goNext} className="w-full">
+            <div className="space-y-1.5">
+              <Label htmlFor="country">País de tu negocio</Label>
+              <select
+                id="country"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                value={country}
+                onChange={(e) => setCountry(e.target.value as CountryCode)}
+              >
+                {COUNTRY_CODES.map((code) => (
+                  <option key={code} value={code}>
+                    {COUNTRIES[code].name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Usamos esto para mostrar tus montos y fechas en la moneda y hora de tu país. Puedes cambiarlo
+                después desde Configuraciones.
+              </p>
+            </div>
+            <Button type="button" onClick={handleCountryNext} disabled={pending} className="w-full">
+              {pending && <Loader2 className="size-4 animate-spin" />}
               Comenzar
             </Button>
           </div>

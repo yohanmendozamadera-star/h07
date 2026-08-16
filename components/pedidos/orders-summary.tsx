@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { OrderListItem } from "@/lib/pedidos/types";
 import { paymentMethodLabel } from "@/lib/pedidos/types";
 import { formatCurrency } from "@/lib/format";
+import type { CountryCode } from "@/lib/locale/countries";
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -14,7 +15,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function OrdersSummary({ orders }: { orders: OrderListItem[] }) {
+export function OrdersSummary({ orders, countryCode }: { orders: OrderListItem[]; countryCode: CountryCode }) {
   const totalAmount = orders.reduce((sum, o) => sum + o.total_amount, 0);
   const byMethod = new Map<string, number>();
   for (const order of orders) {
@@ -24,11 +25,11 @@ export function OrdersSummary({ orders }: { orders: OrderListItem[] }) {
 
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-      <Stat label="Total vendido" value={formatCurrency(totalAmount)} />
+      <Stat label="Total vendido" value={formatCurrency(totalAmount, countryCode)} />
       <Stat label="Cantidad de pedidos" value={String(orders.length)} />
-      <Stat label="Efectivo" value={formatCurrency(byMethod.get("Efectivo") ?? 0)} />
-      <Stat label="Transferencia" value={formatCurrency(byMethod.get("Transferencia") ?? 0)} />
-      <Stat label="Datáfono" value={formatCurrency(byMethod.get("Datáfono") ?? 0)} />
+      <Stat label="Efectivo" value={formatCurrency(byMethod.get("Efectivo") ?? 0, countryCode)} />
+      <Stat label="Transferencia" value={formatCurrency(byMethod.get("Transferencia") ?? 0, countryCode)} />
+      <Stat label="Datáfono" value={formatCurrency(byMethod.get("Datáfono") ?? 0, countryCode)} />
     </div>
   );
 }
