@@ -60,7 +60,14 @@ function MovementRow({ movement, graceMinutes }: { movement: OpenMovement; grace
       return;
     }
     setSubmitting(true);
-    const result = await registrarSalidaParqueadero({ movementId: movement.id, paymentMethod });
+    let result;
+    try {
+      result = await registrarSalidaParqueadero({ movementId: movement.id, paymentMethod });
+    } catch {
+      setSubmitting(false);
+      toast.error("No se pudo registrar la salida", { description: "Intenta de nuevo." });
+      return;
+    }
     setSubmitting(false);
 
     if (!result.success) {
@@ -159,11 +166,18 @@ export function ParqueaderoClient({
     }
 
     setSubmitting(true);
-    const result = await registrarEntradaParqueadero({
-      plate,
-      clientId: clientId || undefined,
-      parkingRateId,
-    });
+    let result;
+    try {
+      result = await registrarEntradaParqueadero({
+        plate,
+        clientId: clientId || undefined,
+        parkingRateId,
+      });
+    } catch {
+      setSubmitting(false);
+      toast.error("No se pudo registrar la entrada", { description: "Intenta de nuevo." });
+      return;
+    }
     setSubmitting(false);
 
     if (!result.success) {
