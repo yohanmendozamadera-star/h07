@@ -22,6 +22,7 @@ import type { ParkingRate, OpenMovement } from "@/lib/parqueadero/types";
 import { calculateParkingCharge } from "@/lib/parqueadero/tariff";
 import { PAYMENT_METHODS } from "@/lib/pedidos/types";
 import { useLocale } from "@/lib/locale/locale-context";
+import { printEntryTicket } from "@/lib/parqueadero/print-ticket";
 import { registrarEntradaParqueadero, registrarSalidaParqueadero } from "@/app/(app)/toma-pedidos/actions";
 
 function formatElapsed(minutes: number) {
@@ -130,14 +131,18 @@ export function ParqueaderoClient({
   openMovements,
   clients,
   graceMinutes,
+  printerIp,
+  businessName,
 }: {
   rates: ParkingRate[];
   openMovements: OpenMovement[];
   clients: ClientRow[];
   graceMinutes: number;
+  printerIp: string | null;
+  businessName: string;
 }) {
   const router = useRouter();
-  const { formatCurrency } = useLocale();
+  const { formatCurrency, countryCode } = useLocale();
   const [plate, setPlate] = useState("");
   const [clientId, setClientId] = useState("");
   const [parkingRateId, setParkingRateId] = useState("");
@@ -167,6 +172,16 @@ export function ParqueaderoClient({
     }
 
     toast.success("Entrada registrada");
+
+    if (printerIp) {
+      const rateName = rates.find((rate) => rate.id === parkingRateId)?.name ?? "";
+      printEntryTicket({ printerIp, businessName, plate, rateName, entryAt: new Date(), countryCode }).catch(() => {
+        toast.error("No se pudo conectar con la impresora", {
+          description: "Revisa que QZ Tray esté abierto y la impresora encendida.",
+        });
+      });
+    }
+
     setPlate("");
     setClientId("");
     setParkingRateId("");

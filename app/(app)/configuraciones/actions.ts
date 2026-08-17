@@ -56,6 +56,7 @@ export async function updateCompanySettingsAction(input: unknown): Promise<Actio
       parking_grace_minutes: parsed.data.parkingGraceMinutes,
       commission_enabled: parsed.data.commissionEnabled,
       commission_technician_percent: parsed.data.commissionEnabled ? parsed.data.commissionTechnicianPercent : null,
+      parqueadero_printer_ip: parsed.data.parqueaderoPrinterIp || null,
     })
     .eq("empresa_id", user.empresaId);
 

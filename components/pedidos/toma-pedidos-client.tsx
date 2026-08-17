@@ -50,6 +50,8 @@ export function TomaPedidosClient({
   parkingRates,
   openMovements,
   graceMinutes,
+  printerIp,
+  businessName,
 }: {
   enabledChannels: PedidoItemChannel[];
   parqueaderoEnabled: boolean;
@@ -63,6 +65,8 @@ export function TomaPedidosClient({
   parkingRates: ParkingRate[];
   openMovements: OpenMovement[];
   graceMinutes: number;
+  printerIp: string | null;
+  businessName: string;
 }) {
   const router = useRouter();
   const { formatCurrency, countryCode } = useLocale();
@@ -573,6 +577,8 @@ export function TomaPedidosClient({
                 openMovements={openMovements}
                 clients={clients}
                 graceMinutes={graceMinutes}
+                printerIp={printerIp}
+                businessName={businessName}
               />
             </TabsContent>
           )}

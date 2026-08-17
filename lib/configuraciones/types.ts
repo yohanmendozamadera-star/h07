@@ -8,6 +8,7 @@ export type CompanySettings = {
   parking_grace_minutes: number;
   commission_enabled: boolean;
   commission_technician_percent: number | null;
+  parqueadero_printer_ip: string | null;
 };
 
 export type SharedCatalogRow = {

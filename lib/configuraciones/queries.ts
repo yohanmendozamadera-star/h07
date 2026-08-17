@@ -7,7 +7,7 @@ export const getCompanySettings = cache(async (empresaId: string): Promise<Compa
   const { data } = await supabase
     .from("company_settings")
     .select(
-      "lavanderia_enabled, inventario_enabled, taller_enabled, parqueadero_enabled, require_technician_on_invoice, show_numeric_keypad, parking_grace_minutes, commission_enabled, commission_technician_percent",
+      "lavanderia_enabled, inventario_enabled, taller_enabled, parqueadero_enabled, require_technician_on_invoice, show_numeric_keypad, parking_grace_minutes, commission_enabled, commission_technician_percent, parqueadero_printer_ip",
     )
     .eq("empresa_id", empresaId)
     .single();

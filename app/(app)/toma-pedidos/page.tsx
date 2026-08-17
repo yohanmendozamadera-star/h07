@@ -6,6 +6,7 @@ import { getTecnicos } from "@/lib/usuarios/queries";
 import { getRecentPedidos } from "@/lib/pedidos/queries";
 import { getParkingRates, getOpenMovements } from "@/lib/parqueadero/queries";
 import { getCompanySettings } from "@/lib/configuraciones/queries";
+import { getCompanyName } from "@/lib/companies/queries";
 import { hasActivePlan } from "@/lib/planes/queries";
 import { getOrderLockStatus } from "@/lib/pedidos/order-lock";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
@@ -26,7 +27,7 @@ export default async function TomaPedidosPage() {
     return <ModulePlaceholder title="Toma Pedidos" description="No tienes permiso para ver este módulo." denied />;
   }
 
-  const [items, clients, technicians, orders, settings, rates, openMovements, planActive, orderLock] =
+  const [items, clients, technicians, orders, settings, rates, openMovements, planActive, orderLock, businessName] =
     await Promise.all([
       getCatalogItems(),
       getClients(),
@@ -37,6 +38,7 @@ export default async function TomaPedidosPage() {
       canViewParqueadero ? getOpenMovements() : Promise.resolve([]),
       hasActivePlan(user!.empresaId),
       getOrderLockStatus(user!.empresaId),
+      getCompanyName(user!.empresaId),
     ]);
 
   const enabledChannels: PedidoItemChannel[] = [
@@ -85,6 +87,8 @@ export default async function TomaPedidosPage() {
         parkingRates={activeRates}
         openMovements={openMovements}
         graceMinutes={settings?.parking_grace_minutes ?? 0}
+        printerIp={settings?.parqueadero_printer_ip ?? null}
+        businessName={businessName}
       />
     </div>
   );

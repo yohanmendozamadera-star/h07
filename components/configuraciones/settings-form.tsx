@@ -31,6 +31,7 @@ function toFormValues(settings: CompanySettings): CompanySettingsFormValues {
     parkingGraceMinutes: settings.parking_grace_minutes,
     commissionEnabled: settings.commission_enabled,
     commissionTechnicianPercent: settings.commission_technician_percent,
+    parqueaderoPrinterIp: settings.parqueadero_printer_ip ?? "",
   };
 }
 
@@ -106,6 +107,34 @@ export function SettingsForm({ settings }: { settings: CompanySettings }) {
               <p className="text-sm text-destructive">{errors.parkingGraceMinutes.message}</p>
             )}
           </div>
+
+          {values.parqueaderoEnabled && (
+            <div className="max-w-xs space-y-1.5">
+              <Label htmlFor="parqueaderoPrinterIp">IP de la impresora térmica (opcional)</Label>
+              <Input
+                id="parqueaderoPrinterIp"
+                placeholder="192.168.1.50"
+                {...register("parqueaderoPrinterIp")}
+              />
+              <p className="text-xs text-muted-foreground">
+                Para que salga un tiquete impreso al registrar una entrada, escribe aquí la IP de tu impresora
+                térmica de red (80mm) y ten instalado{" "}
+                <a
+                  href="https://qz.io/download/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  QZ Tray
+                </a>{" "}
+                (gratis) en el computador conectado a la impresora. La primera vez que imprimas, verás un aviso de
+                QZ Tray pidiendo permitir la conexión.
+              </p>
+              {errors.parqueaderoPrinterIp && (
+                <p className="text-sm text-destructive">{errors.parqueaderoPrinterIp.message}</p>
+              )}
+            </div>
+          )}
 
           <div className="space-y-3 rounded-md border p-3">
             <label className="flex items-center gap-3">

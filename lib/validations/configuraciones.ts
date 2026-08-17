@@ -11,6 +11,7 @@ export const companySettingsFormSchema = z
     parkingGraceMinutes: z.coerce.number().min(0).max(1440),
     commissionEnabled: z.boolean(),
     commissionTechnicianPercent: z.coerce.number().min(0).max(100).nullable(),
+    parqueaderoPrinterIp: z.string().trim().optional(),
   })
   .refine((data) => !data.commissionEnabled || data.commissionTechnicianPercent !== null, {
     message: "Indica el % de comisión del técnico",
