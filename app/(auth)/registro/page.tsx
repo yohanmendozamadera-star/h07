@@ -48,7 +48,7 @@ export default function RegistroPage() {
   const onSubmit = async (values: RegistroForm) => {
     setSubmitting(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: {
@@ -64,6 +64,18 @@ export default function RegistroPage() {
 
     if (error) {
       toast.error("No fue posible crear la cuenta", { description: error.message });
+      return;
+    }
+
+    // Supabase no devuelve error si el correo ya tiene cuenta (para no revelar
+    // qué correos existen) — en vez de eso, el usuario devuelto trae
+    // identities vacío y no se envía ningún correo nuevo. Sin este chequeo,
+    // la pantalla mostraba "revisa tu correo" aunque nunca se hubiera
+    // enviado nada, dejando a la persona esperando un correo que no llega.
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      toast.error("Ya existe una cuenta con este correo", {
+        description: "Inicia sesión, o usa \"¿Olvidaste tu contraseña?\" si no la recuerdas.",
+      });
       return;
     }
 
