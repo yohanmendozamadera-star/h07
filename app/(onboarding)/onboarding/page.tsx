@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/permissions";
 import { createClient } from "@/lib/supabase/server";
+import { getPlans } from "@/lib/planes/queries";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 
 export default async function OnboardingPage() {
@@ -8,11 +9,14 @@ export default async function OnboardingPage() {
   if (!user) redirect("/login");
 
   const supabase = await createClient();
-  const { data: settings } = await supabase
-    .from("company_settings")
-    .select("lavanderia_enabled, inventario_enabled, taller_enabled, parqueadero_enabled")
-    .eq("empresa_id", user.empresaId)
-    .single();
+  const [{ data: settings }, plans] = await Promise.all([
+    supabase
+      .from("company_settings")
+      .select("lavanderia_enabled, inventario_enabled, taller_enabled, parqueadero_enabled")
+      .eq("empresa_id", user.empresaId)
+      .single(),
+    getPlans(),
+  ]);
 
   return (
     <div className="w-full max-w-2xl">
@@ -24,6 +28,7 @@ export default async function OnboardingPage() {
           parqueaderoEnabled: settings?.parqueadero_enabled ?? false,
         }}
         initialCountryCode={user.countryCode}
+        h7PriceCop={plans.find((p) => p.code === "h7")?.price_cop ?? 0}
       />
     </div>
   );

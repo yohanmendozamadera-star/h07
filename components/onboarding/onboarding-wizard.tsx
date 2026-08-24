@@ -16,8 +16,10 @@ import {
   saveParkingRatesAction,
   completeOnboardingAction,
 } from "@/app/(onboarding)/onboarding/actions";
+import { changePlan } from "@/app/(app)/planes/actions";
 import type { ModuleSelection, CatalogItemDraft, ParkingRateDraft } from "@/lib/validations/onboarding";
 import { COUNTRIES, COUNTRY_CODES, type CountryCode } from "@/lib/locale/countries";
+import { formatCurrency } from "@/lib/format";
 
 const STEPS = ["Bienvenida", "Módulos", "Servicios y tarifas", "Confirmación"];
 
@@ -47,9 +49,11 @@ function emptyParkingRow(): ParkingRateDraft {
 export function OnboardingWizard({
   initialSettings,
   initialCountryCode,
+  h7PriceCop,
 }: {
   initialSettings: ModuleSelection;
   initialCountryCode: CountryCode;
+  h7PriceCop: number;
 }) {
   const [step, setStep] = useState(0);
   const [pending, startTransition] = useTransition();
@@ -130,6 +134,26 @@ export function OnboardingWizard({
         // Next.js implementa lanzando un error especial (digest
         // "NEXT_REDIRECT") para completar la navegación — no es un error
         // real, así que lo dejamos pasar en vez de mostrarlo como falla.
+        if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw error;
+        toast.error("No fue posible finalizar la configuración", { description: (error as Error).message });
+      }
+    });
+  };
+
+  // Suscribirse acá no cobra de inmediato con Bold: activa el plan H07 y
+  // genera la factura del periodo (igual que un cambio de plan normal desde
+  // Configuraciones → Planes) — el pago con Bold lo hacen después, cuando
+  // quieran, desde esa misma pantalla.
+  const handlePlanNext = () => {
+    startTransition(async () => {
+      const result = await changePlan({ planCode: "h7", addonEnabled: false });
+      if (!result.success) {
+        toast.error("No se pudo activar el plan H07", { description: result.message });
+        return;
+      }
+      try {
+        await completeOnboardingAction();
+      } catch (error) {
         if ((error as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw error;
         toast.error("No fue posible finalizar la configuración", { description: (error as Error).message });
       }
@@ -373,12 +397,42 @@ export function OnboardingWizard({
         {step === 3 && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Todo listo. Ya puedes entrar a H07 y empezar a tomar pedidos.
+              Todo listo. Elige cómo quieres empezar — puedes cambiar de plan cuando quieras desde Planes.
             </p>
-            <Button type="button" onClick={handleFinish} disabled={pending} className="w-full">
-              {pending && <Loader2 className="size-4 animate-spin" />}
-              Finalizar configuración
-            </Button>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-3 rounded-md border p-4">
+                <div>
+                  <p className="font-medium">Continuar gratis</p>
+                  <p className="text-sm text-muted-foreground">
+                    Acceso a toda la plataforma, historial de pedidos de las últimas 3 horas.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleFinish}
+                  disabled={pending}
+                  className="w-full"
+                >
+                  {pending && <Loader2 className="size-4 animate-spin" />}
+                  Continuar gratis
+                </Button>
+              </div>
+
+              <div className="space-y-3 rounded-md border border-blue-300 p-4 dark:border-blue-800">
+                <div>
+                  <p className="font-medium">H07 — {formatCurrency(h7PriceCop)}/mes</p>
+                  <p className="text-sm text-muted-foreground">
+                    Historial de pedidos ilimitado y soporte premium.
+                  </p>
+                </div>
+                <Button type="button" onClick={handlePlanNext} disabled={pending} className="w-full">
+                  {pending && <Loader2 className="size-4 animate-spin" />}
+                  Suscribirme
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
