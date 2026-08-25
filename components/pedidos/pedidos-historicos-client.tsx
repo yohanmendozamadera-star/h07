@@ -1,6 +1,7 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ClipboardList, Wrench } from "lucide-react";
+import { Tabs, TabsList, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { OrdersList } from "@/components/pedidos/orders-list";
 import { OrdersSummary } from "@/components/pedidos/orders-summary";
@@ -9,6 +10,7 @@ import { ExportButton } from "@/components/shared/export-button";
 import type { OrderListItem, TallerFollowUp } from "@/lib/pedidos/types";
 import { getToday } from "@/lib/format";
 import { useLocale } from "@/lib/locale/locale-context";
+import { EmphasisTabTrigger } from "@/components/shared/emphasis-tab-trigger";
 
 function TallerFollowUpsTable({ followUps }: { followUps: TallerFollowUp[] }) {
   const { formatDate, countryCode } = useLocale();
@@ -73,9 +75,9 @@ export function PedidosHistoricosClient({
   const { countryCode } = useLocale();
   return (
     <Tabs defaultValue="todos">
-      <TabsList>
-        <TabsTrigger value="todos">Todos</TabsTrigger>
-        <TabsTrigger value="taller">Seguimiento Taller</TabsTrigger>
+      <TabsList className="min-h-16 w-full flex-wrap justify-start gap-2 bg-transparent p-2">
+        <EmphasisTabTrigger value="todos" label="Todos los pedidos" icon={ClipboardList} />
+        <EmphasisTabTrigger value="taller" label="Seguimiento Taller" icon={Wrench} />
       </TabsList>
 
       <TabsContent value="todos" className="space-y-4 pt-3">

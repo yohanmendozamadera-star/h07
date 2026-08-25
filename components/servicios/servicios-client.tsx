@@ -75,7 +75,7 @@ export function ServiciosClient({
       </div>
 
       <Tabs defaultValue={firstTab}>
-        <TabsList className="h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-1 pb-2">
+        <TabsList className="min-h-16 w-full flex-wrap justify-start gap-2 bg-transparent p-2">
           {enabledChannels.map((channel) => (
             <ChannelTabTrigger key={channel} channel={channel} />
           ))}
