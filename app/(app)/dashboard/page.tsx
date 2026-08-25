@@ -1,3 +1,4 @@
+import { ChartNoAxesCombined, Scale, UsersRound } from "lucide-react";
 import { getCurrentUser, can } from "@/lib/permissions";
 import {
   getDashboardSummary,
@@ -8,7 +9,8 @@ import {
 } from "@/lib/dashboard/queries";
 import { getToday } from "@/lib/format";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsContent } from "@/components/ui/tabs";
+import { EmphasisTabTrigger } from "@/components/shared/emphasis-tab-trigger";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { DailySalesChart } from "@/components/dashboard/daily-sales-chart";
 import { BudgetedBreakEvenCard, RealBreakEvenCard } from "@/components/dashboard/break-even-card";
@@ -49,10 +51,10 @@ export default async function DashboardPage({
       </div>
 
       <Tabs defaultValue="ventas">
-        <TabsList className="h-10 rounded-xl bg-card p-1 shadow-sm ring-1 ring-border">
-          <TabsTrigger value="ventas">Ventas</TabsTrigger>
-          <TabsTrigger value="productividad">Productividad</TabsTrigger>
-          <TabsTrigger value="punto-equilibrio">Punto de equilibrio</TabsTrigger>
+        <TabsList className="min-h-16 w-full flex-wrap justify-start gap-2 bg-transparent p-2">
+          <EmphasisTabTrigger value="ventas" label="Ventas" icon={ChartNoAxesCombined} />
+          <EmphasisTabTrigger value="productividad" label="Productividad" icon={UsersRound} />
+          <EmphasisTabTrigger value="punto-equilibrio" label="Punto de equilibrio" icon={Scale} />
         </TabsList>
 
         <TabsContent value="ventas" className="space-y-4 pt-3">
