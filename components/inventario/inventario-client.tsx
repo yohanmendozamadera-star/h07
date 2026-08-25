@@ -1,12 +1,14 @@
 "use client";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Boxes, PackageX, ShoppingCart } from "lucide-react";
+import { Tabs, TabsList, TabsContent } from "@/components/ui/tabs";
 import { PurchaseFormDialog } from "@/components/inventario/purchase-form-dialog";
 import { ShrinkageFormDialog } from "@/components/inventario/shrinkage-form-dialog";
 import type { CatalogItem } from "@/lib/servicios/types";
 import type { SharedCatalogRow } from "@/lib/configuraciones/types";
 import type { PurchaseRow, ShrinkageRow, StockRow } from "@/lib/inventario/types";
 import { useLocale } from "@/lib/locale/locale-context";
+import { EmphasisTabTrigger } from "@/components/shared/emphasis-tab-trigger";
 
 export function InventarioClient({
   items,
@@ -34,10 +36,10 @@ export function InventarioClient({
 
   return (
     <Tabs defaultValue="stock">
-      <TabsList>
-        <TabsTrigger value="stock">Stock</TabsTrigger>
-        <TabsTrigger value="compras">Compras</TabsTrigger>
-        <TabsTrigger value="mermas">Mermas</TabsTrigger>
+      <TabsList className="min-h-16 w-full flex-wrap justify-start gap-2 bg-transparent p-2">
+        <EmphasisTabTrigger value="stock" label="Stock" icon={Boxes} />
+        <EmphasisTabTrigger value="compras" label="Compras" icon={ShoppingCart} />
+        <EmphasisTabTrigger value="mermas" label="Mermas" icon={PackageX} />
       </TabsList>
 
       <TabsContent value="stock" className="space-y-3 pt-3">

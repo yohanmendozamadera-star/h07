@@ -1,10 +1,12 @@
+import { SlidersHorizontal, Tags, Truck } from "lucide-react";
 import { getCurrentUser, can } from "@/lib/permissions";
 import { getCompanySettings, getExpenseCategories, getSuppliers } from "@/lib/configuraciones/queries";
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 import { SettingsForm } from "@/components/configuraciones/settings-form";
 import { CompanyCountryForm } from "@/components/configuraciones/company-country-form";
 import { SharedCatalogManager } from "@/components/configuraciones/shared-catalog-manager";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsContent } from "@/components/ui/tabs";
+import { EmphasisTabTrigger } from "@/components/shared/emphasis-tab-trigger";
 import {
   createExpenseCategoryAction,
   toggleExpenseCategoryAction,
@@ -37,10 +39,10 @@ export default async function ConfiguracionesPage() {
       <h1 className="text-xl font-semibold tracking-tight">Configuraciones</h1>
 
       <Tabs defaultValue="modulos">
-        <TabsList>
-          <TabsTrigger value="modulos">Módulos y preferencias</TabsTrigger>
-          <TabsTrigger value="categorias-gasto">Categorías de gasto</TabsTrigger>
-          <TabsTrigger value="proveedores">Proveedores</TabsTrigger>
+        <TabsList className="min-h-16 w-full flex-wrap justify-start gap-2 bg-transparent p-2">
+          <EmphasisTabTrigger value="modulos" label="Módulos y preferencias" icon={SlidersHorizontal} />
+          <EmphasisTabTrigger value="categorias-gasto" label="Categorías de gasto" icon={Tags} />
+          <EmphasisTabTrigger value="proveedores" label="Proveedores" icon={Truck} />
         </TabsList>
 
         <TabsContent value="modulos" className="space-y-4 pt-3">
