@@ -10,9 +10,9 @@ export function DailySalesChart({ points }: { points: DailySalesPoint[] }) {
   const hasSales = points.some((p) => p.total > 0);
 
   return (
-    <Card>
+    <Card className="border-0 shadow-[0_12px_40px_rgba(6,41,95,0.07)] ring-1 ring-blue-950/8 dark:ring-white/10">
       <CardHeader>
-        <CardTitle className="text-lg">Ventas por día (este mes)</CardTitle>
+        <CardTitle className="text-lg text-primary dark:text-white">Ventas por día</CardTitle>
         <CardDescription>Tendencia diaria del mes en curso</CardDescription>
       </CardHeader>
       <CardContent>
@@ -46,7 +46,7 @@ export function DailySalesChart({ points }: { points: DailySalesPoint[] }) {
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="total" fill="var(--primary)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+              <Bar dataKey="total" fill="var(--chart-1)" radius={[7, 7, 2, 2]} isAnimationActive={false} />
             </BarChart>
           </ResponsiveContainer>
         )}

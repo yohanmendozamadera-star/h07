@@ -42,11 +42,11 @@ export function SidebarNav({
     });
   };
 
-  const activeClass = "bg-blue-100 text-blue-900";
-  const inactiveClass = "text-blue-100/70 hover:bg-blue-900/60 hover:text-white";
+  const activeClass = "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm";
+  const inactiveClass = "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-white";
 
   return (
-    <nav className="flex flex-col gap-1 p-2">
+    <nav className="flex flex-col gap-1.5 p-3">
       {items.map((item) => {
         const Icon = item.icon;
         const ownActive = pathname.startsWith(item.href);
@@ -57,12 +57,12 @@ export function SidebarNav({
 
           return (
             <div key={item.href}>
-              <div className={cn("flex items-center gap-1 rounded-md text-sm font-medium transition-colors", ownActive && activeClass, !ownActive && (hasActiveChild ? "text-white" : inactiveClass))}>
+              <div className={cn("flex items-center gap-1 rounded-xl text-sm font-medium transition-colors", ownActive && activeClass, !ownActive && (hasActiveChild ? "text-white" : inactiveClass))}>
                 <Link
                   href={item.href}
                   onClick={onNavigate}
                   title={collapsed ? item.label : undefined}
-                  className={cn("flex flex-1 items-center gap-3 px-3 py-2", collapsed && "justify-center px-2")}
+                  className={cn("flex flex-1 items-center gap-3 px-3 py-2.5", collapsed && "justify-center px-2")}
                 >
                   <Icon className="size-4 shrink-0" />
                   {!collapsed && <span>{item.label}</span>}
@@ -72,14 +72,14 @@ export function SidebarNav({
                     type="button"
                     onClick={() => toggle(item.href)}
                     aria-label={isExpanded ? "Contraer" : "Expandir"}
-                    className={cn("rounded-md p-2", !ownActive && "hover:bg-blue-900/60 hover:text-white")}
+                    className={cn("rounded-lg p-2", !ownActive && "hover:bg-sidebar-accent hover:text-white")}
                   >
                     {isExpanded ? <ChevronDown className="size-4 shrink-0" /> : <ChevronRight className="size-4 shrink-0" />}
                   </button>
                 )}
               </div>
               {!collapsed && isExpanded && (
-                <div className="ml-4 flex flex-col gap-1 border-l border-blue-900 pl-3">
+                <div className="ml-5 mt-1 flex flex-col gap-1 border-l border-cyan-400/25 pl-3">
                   {item.children.map((child) => {
                     const childActive = pathname.startsWith(child.href);
                     return (
@@ -88,7 +88,7 @@ export function SidebarNav({
                         href={child.href}
                         onClick={onNavigate}
                         className={cn(
-                          "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                          "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                           childActive ? activeClass : inactiveClass,
                         )}
                       >
@@ -109,7 +109,7 @@ export function SidebarNav({
             onClick={onNavigate}
             title={collapsed ? item.label : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
               ownActive ? activeClass : inactiveClass,
               collapsed && "justify-center px-2",
             )}

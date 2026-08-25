@@ -88,7 +88,7 @@ export function Header({
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background px-3 md:px-4">
+    <header className="flex h-20 shrink-0 items-center justify-between border-b bg-card/90 px-3 backdrop-blur-xl md:px-6">
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -108,7 +108,7 @@ export function Header({
         >
           {collapsed ? <PanelLeftOpen className="size-5" /> : <PanelLeftClose className="size-5" />}
         </Button>
-        <span className="font-semibold tracking-tight">H07</span>
+        <div className="hidden sm:block"><span className="text-sm font-semibold tracking-tight text-primary">Panel de gestión</span><p className="text-xs text-muted-foreground">Control de tu negocio en tiempo real</p></div>
       </div>
 
       <div className="flex items-center gap-3">
@@ -123,13 +123,13 @@ export function Header({
           </Link>
         )}
 
-        <Link href="/mi-perfil" className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-muted" title="Mi perfil">
-          <Avatar className="size-7">
+        <Link href="/mi-perfil" className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-accent" title="Mi perfil">
+          <Avatar className="size-8 ring-2 ring-cyan-500/20">
             {avatarUrl && <AvatarImage src={avatarUrl} alt={fullName} />}
             <AvatarFallback className="text-xs">{initials(fullName) || "U"}</AvatarFallback>
           </Avatar>
           <span className="hidden text-sm font-medium sm:inline">{fullName}</span>
-          <Badge variant="secondary" className="hidden sm:inline-flex">
+          <Badge variant="secondary" className="hidden rounded-full sm:inline-flex">
             {roleName}
           </Badge>
         </Link>

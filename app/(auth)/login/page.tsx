@@ -50,10 +50,10 @@ function LoginForm() {
   };
 
   return (
-    <Card>
+    <Card className="border-0 bg-transparent shadow-none ring-0">
       <CardHeader>
-        <CardTitle className="text-xl">Iniciar sesión</CardTitle>
-        <CardDescription>Ingresa tus credenciales para acceder a H07.</CardDescription>
+        <CardTitle className="text-2xl font-bold text-primary dark:text-white">Bienvenido de nuevo</CardTitle>
+        <CardDescription>Ingresa tus datos para administrar tu negocio.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

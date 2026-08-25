@@ -41,11 +41,15 @@ export default async function DashboardPage({
   ]);
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold tracking-tight">Hola, {user!.fullName}</h1>
+    <div className="mx-auto max-w-[1500px] space-y-6">
+      <div>
+        <p className="text-sm font-medium text-cyan-600 dark:text-cyan-300">RESUMEN DEL NEGOCIO</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-primary dark:text-white md:text-3xl">Hola, {user!.fullName}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Así se está moviendo tu lavadero hoy.</p>
+      </div>
 
       <Tabs defaultValue="ventas">
-        <TabsList>
+        <TabsList className="h-10 rounded-xl bg-card p-1 shadow-sm ring-1 ring-border">
           <TabsTrigger value="ventas">Ventas</TabsTrigger>
           <TabsTrigger value="productividad">Productividad</TabsTrigger>
           <TabsTrigger value="punto-equilibrio">Punto de equilibrio</TabsTrigger>
