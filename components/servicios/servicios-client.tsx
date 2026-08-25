@@ -13,6 +13,7 @@ import { toggleCatalogItemActive, toggleParkingRateActive } from "@/app/(app)/se
 import { CHANNEL_LABELS, type CatalogChannel, type CatalogItem } from "@/lib/servicios/types";
 import type { ParkingRate } from "@/lib/parqueadero/types";
 import { useLocale } from "@/lib/locale/locale-context";
+import { ChannelTabTrigger } from "@/components/shared/channel-tab-trigger";
 
 export function ServiciosClient({
   items,
@@ -74,13 +75,11 @@ export function ServiciosClient({
       </div>
 
       <Tabs defaultValue={firstTab}>
-        <TabsList>
+        <TabsList className="h-auto w-full justify-start gap-2 overflow-x-auto bg-transparent p-1 pb-2">
           {enabledChannels.map((channel) => (
-            <TabsTrigger key={channel} value={channel}>
-              {CHANNEL_LABELS[channel]}
-            </TabsTrigger>
+            <ChannelTabTrigger key={channel} channel={channel} />
           ))}
-          {parqueaderoEnabled && <TabsTrigger value="parqueadero">Parqueadero</TabsTrigger>}
+          {parqueaderoEnabled && <ChannelTabTrigger channel="parqueadero" />}
         </TabsList>
 
         {enabledChannels.map((channel) => {
